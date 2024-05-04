@@ -28,6 +28,10 @@ void Server::start()
 		if(list_client.size() < MAX_CONNECTIONS)
 		{
 			set_up_connection();
+            if(list_client.size() > 0)
+            {
+                receve(list_client[0]);
+            }
 		}
 	}
 	
@@ -47,8 +51,21 @@ void Server::set_up_room(int listening_sockeck_fd, int *client_socket_fd)
 
 }
 
+void Server::receve(int cli_sockfd)
+{
+    int msg = 0;
+    int n = read(cli_sockfd, &msg, sizeof(int));
+
+    if (n < 0 || n != sizeof(int))
+        return;
+        //return -1;
+
+    printf("[DEBUG] Received int: %d\n", msg);
+}
+
 //conexion individual 
-bool Server::set_up_connection(){
+bool Server::set_up_connection()
+{
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
 

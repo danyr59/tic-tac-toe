@@ -35,6 +35,7 @@ public:
     void set_up_room(int , int *);
     void start();
     bool set_up_connection();
+    void receve(int cli_sockfd);
 
 };
 

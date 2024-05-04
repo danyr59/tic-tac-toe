@@ -8,8 +8,5 @@ main: server.o
 %.o: %.cpp
 	$(CXX) $(FLAGS) $(INCLUDE) -c $< -o $@ $(LIBLINK)
 
-client:
-	$(CXX) $(FLAGS) $(INCLUDE) $@.cpp -o $@.out
-
 clean:
 	rm *.out *.o

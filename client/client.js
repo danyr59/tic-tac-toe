@@ -15,6 +15,11 @@ client.on('connect', () => {
   });
 });
 
+setTimeout(() =>
+{
+  client.write("5555");
+}, 5000);
+
 client.on('error', (error) => {
   console.error('Error al conectar al servidor:', error.message);
 });
