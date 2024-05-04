@@ -1,9 +1,10 @@
 #include "server.h"
+#define PORT 5000
 
 int main()
 {
 
-    Server serr(5000);
+    Server serr(PORT);
     serr.start();
 
 	return 0;

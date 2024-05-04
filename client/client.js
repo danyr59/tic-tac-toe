@@ -13,22 +13,24 @@ client.on('connect', () => {
   client.on('data', (data) => {
     console.log('Datos recibidos:', data.toString());
     //client.write("Hola");
-    setTimeout(() =>{
-      client.write("hola otra vez x1");
-      console.log("envie cosas");
 
-    }, 4000);
-    setTimeout(() =>{
-      client.write("hola otra vez x2");
-      console.log("envie cosas");
-
-    }, 6000);
-    setTimeout(() =>{
-      client.write("hola otra vez x3");
-      console.log("envie cosas");
-
-    }, 8000);
   });
+
+  setTimeout(() =>{
+    client.write("hola otra vez x1");
+    console.log("envie cosas");
+
+  }, 4000);
+  setTimeout(() =>{
+    client.write("hola otra vez x2");
+    console.log("envie cosas");
+
+  }, 6000);
+  setTimeout(() =>{
+    client.write("hola otra vez x3");
+    console.log("envie cosas");
+
+  }, 8000);
 });
 
 
