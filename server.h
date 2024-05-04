@@ -16,10 +16,13 @@
 #include <vector>
 #include <mutex>
 
+#include <nlohmann/json.hpp>
 #include "util.h"
 
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
+
+using json = nlohmann::json;
 
 class Server
 {
@@ -29,11 +32,11 @@ private:
     int  *cli_sockfd; 
     std::vector<int> list_client;
     std::mutex mtx_client;
+    std::mutex mtx_fds;
     struct pollfd fds[MAX_CLIENTS];
     int nfds, value_read;
     char buffer[BUFFER_SIZE] = {0};
     std::thread * hilo;
-     
 
 public:
     Server(int port);
@@ -45,6 +48,7 @@ public:
     bool set_up_connection();
     void receve();
     void read_data(int);
+    void add_client(int);
 
 };
 

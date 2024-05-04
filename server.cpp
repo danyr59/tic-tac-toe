@@ -72,7 +72,8 @@ void Server::receve()
 {
     while (true)
     {
-        int activity = poll(fds, nfds, -1);
+        //mtx_fds.lock();
+        int activity = poll(fds, nfds, 5);
          if (activity < 0) {
             perror("poll error");
             exit(EXIT_FAILURE);
@@ -87,12 +88,17 @@ void Server::receve()
                 {
                     buffer[value_read] = '\0';
                     printf("Datos recibidos del cliente %d: %s\n", i, buffer);
+                    std::string str_json = buffer;
+                    json js = json::parse(str_json);
+                    std::cout << js["dato"] << " : " << js["dato2"] << std::endl;
                 }
                 else
                 {
-                    // El cliente se desconectó o hubo un error
-                    close(fds[i].fd);
-                    fds[i].fd = -1;
+                    mtx_fds.lock();
+                        // El cliente se desconectó o hubo un error
+                        close(fds[i].fd);
+                        fds[i].fd = -1;
+                    mtx_fds.unlock();
                 }
             }
         }
@@ -101,6 +107,25 @@ void Server::receve()
     
 }
 
+void Server::add_client(int fd_client)
+{
+    // Añadir el nuevo socket al array de fds
+    int i;
+    mtx_fds.lock();
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (fds[i].fd == -1) {
+            fds[i].fd = fd_client;
+            break;
+        }
+    }
+
+    std::cout << "cliente: " << i << std::endl;
+
+    send_message(fd_client, "hola");
+    list_client.push_back(i);
+    ++nfds;
+    mtx_fds.unlock();
+}
 // conexion individual
 bool Server::set_up_connection()
 {
@@ -123,15 +148,9 @@ bool Server::set_up_connection()
         return false;
     }
 
-    std::cout << "cliente: " << client_id << std::endl;
-
-    list_client.push_back(client_id);
-    send_message(client_id, "hola");
-
-    fds[nfds].fd = client_id;
-    ++nfds;
+    add_client(client_id);
     
-    if(nfds == 1)
+    if(hilo == nullptr)
         hilo = new std::thread(&Server::receve, this);
 
     return true;
