@@ -28,10 +28,6 @@ void Server::start()
 		if(list_client.size() < MAX_CONNECTIONS)
 		{
 			set_up_connection();
-            if(list_client.size() > 0)
-            {
-                receve(list_client[0]);
-            }
 		}
 	}
 	
@@ -53,14 +49,21 @@ void Server::set_up_room(int listening_sockeck_fd, int *client_socket_fd)
 
 void Server::receve(int cli_sockfd)
 {
-    int msg = 0;
-    int n = read(cli_sockfd, &msg, sizeof(int));
+    printf("comienza receve\n");
+    while (true)
+    {
+        char msg[1024] = {0};
+        int n = read(cli_sockfd, msg, 1024);
 
-    if (n < 0 || n != sizeof(int))
-        return;
-        //return -1;
+        if (n < 0 || n == 0)
+            return;
+            //return -1;
+        printf("[DEBUG] Received: %s\n", msg);
+        /* code */
+    }
 
-    printf("[DEBUG] Received int: %d\n", msg);
+    printf("termina receve\n");
+    
 }
 
 //conexion individual 
@@ -78,8 +81,12 @@ bool Server::set_up_connection()
         return false;
     }
 
+    std::cout << "cliente: " << client_id << std::endl;
+
 	list_client.push_back(client_id);
 	send_message(client_id, "hola");  
+
+    receve(client_id);
     
     return true;
 }
