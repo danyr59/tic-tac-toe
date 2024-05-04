@@ -44,11 +44,6 @@ bool Server::send_message(int cli_sockfd, std::string msg)
 
 void Server::set_up_room(int listening_sockeck_fd, int *client_socket_fd)
 {
-          
-
-    
-
-    
 
 }
 
