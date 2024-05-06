@@ -7,6 +7,7 @@ Server::Server(int port) : list_client(), mtx_client()
     hilo = nullptr;
 
     value_read = nfds = 0;
+    listen_data = true;
 
     lis_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (lis_sockfd < 0)
@@ -44,8 +45,9 @@ void Server::start()
     }
 }
 
-bool Server::send_message(int cli_sockfd, std::string msg)
+bool Server::send_message(int cli_sockfd, json data)
 {
+    std::string msg = data.dump();
     int n = write(cli_sockfd, msg.c_str(), strlen(msg.c_str()));
     if (n < 0)
         return false;
@@ -54,23 +56,42 @@ bool Server::send_message(int cli_sockfd, std::string msg)
 
 void Server::set_up_room(int listening_sockeck_fd, int *client_socket_fd)
 {
+    //conexion ambos clientes a una sala 
+    //crear un hilo que administre el juego 
 }
 
-void Server::read_data(int cli_sockfd)
+json Server::read_data(int cli_fd)
 {
-    char msg[1024] = {0};
-    int n = read(cli_sockfd, msg, 1024);
-
-    if (n < 0 || n == 0)
-        return;
-    // return -1;
-    printf("[DEBUG] Received: %s\n", msg);
-    /* code */
+    json js;
+    js["action"] = -1;
+    value_read = read(cli_fd, buffer, BUFFER_SIZE);  
+    buffer[value_read] = '\0';
+    std::string str_json = buffer;
+    if(value_read == 0)
+        return js;
+    try
+    {
+        js = json::parse(str_json);
+        std::cout << js["dato"] << " : " << js["dato2"] << std::endl;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return js;
 }
 
-void Server::receve()
+void Server::manage_data(json j)
 {
-    while (true)
+    if (j.find("action") != j.end()) 
+    {
+
+    }
+}
+
+void Server::set_listen()
+{
+    while (listen_data)
     {
         //mtx_fds.lock();
         int activity = poll(fds, nfds, 5);
@@ -83,14 +104,10 @@ void Server::receve()
         {
             if (fds[i].revents & POLLIN)
             {
-                value_read = read(fds[i].fd, buffer, BUFFER_SIZE);
+                json data = read_data(fds[i].fd);
                 if (value_read > 0)
                 {
-                    buffer[value_read] = '\0';
-                    printf("Datos recibidos del cliente %d: %s\n", i, buffer);
-                    std::string str_json = buffer;
-                    json js = json::parse(str_json);
-                    std::cout << js["dato"] << " : " << js["dato2"] << std::endl;
+                   manage_data(data);
                 }
                 else
                 {
@@ -121,11 +138,22 @@ void Server::add_client(int fd_client)
 
     std::cout << "cliente: " << i << std::endl;
 
-    send_message(fd_client, "hola");
-    list_client.push_back(i);
+    autenticar(fd_client, i);
+    list_client.push_back(fd_client);
     ++nfds;
     mtx_fds.unlock();
 }
+
+bool Server::autenticar(const int &fd_client, const int &id)
+{
+    json data = {
+        {"action","1"},
+        {"id", id},
+    };
+
+    send_message(fd_client, data);
+}
+
 // conexion individual
 bool Server::set_up_connection()
 {
@@ -149,15 +177,19 @@ bool Server::set_up_connection()
     }
 
     add_client(client_id);
+    //autenticacion (crear id)
+    
+    //seleccionar 
     
     if(hilo == nullptr)
-        hilo = new std::thread(&Server::receve, this);
+        hilo = new std::thread(&Server::set_listen, this);
 
     return true;
 }
 
 Server::~Server()
 {
+
     if(hilo->joinable())
     {
         hilo->join();

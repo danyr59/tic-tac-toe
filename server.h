@@ -37,18 +37,21 @@ private:
     int nfds, value_read;
     char buffer[BUFFER_SIZE] = {0};
     std::thread * hilo;
+    bool listen_data;
 
 public:
     Server(int port);
     ~Server();
 
-    bool send_message(int cli_sockfd, std::string msg);
+    bool send_message(int cli_sockfd, json msg);
     void set_up_room(int , int *);
     void start();
     bool set_up_connection();
-    void receve();
-    void read_data(int);
+    void set_listen();
+    json read_data(int);
     void add_client(int);
+    void manage_data(json);
+    bool autenticar(const int &, const int &);
 
 };
 

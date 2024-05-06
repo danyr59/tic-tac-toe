@@ -11,7 +11,8 @@ client.on('connect', () => {
   client.write(JSON.stringify({dato: "hola", dato2: "hola"}));
   
   client.on('data', (data) => {
-    console.log('Datos recibidos:', data.toString());
+    var n_data = JSON.parse(data);
+    console.log('Datos recibidos:', n_data);
     //client.write("Hola");
 
   });
