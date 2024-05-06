@@ -6,6 +6,16 @@
 #include <cstring>
 #include <cerrno>
 
+enum ACTION {
+    AUTHENTICATION = 0,
+    NEW_ROOM =1,
+    CHOOSE_ROOM = 2,
+    SELECT_MOVEMENT = 3,
+    OUT_ROOM = 4,
+    OUT_GAME = 5,
+    LIST_ROOM = 6
+};
+
 /*
 void error(const char *msg)
 {

@@ -14,10 +14,13 @@
 #include <thread>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <mutex>
+#include <memory>
 
 #include <nlohmann/json.hpp>
 #include "util.h"
+#include "room.h"
 
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
@@ -31,6 +34,7 @@ private:
     int lis_sockfd;
     int  *cli_sockfd; 
     std::vector<int> list_client;
+    std::unordered_map<std::string, std::unique_ptr<Room>> list_room;
     std::mutex mtx_client;
     std::mutex mtx_fds;
     struct pollfd fds[MAX_CLIENTS];
@@ -43,15 +47,16 @@ public:
     Server(int port);
     ~Server();
 
-    bool send_message(int cli_sockfd, json msg);
+    bool send_message(const int &cli_sockfd, json msg);
     void set_up_room(int , int *);
     void start();
     bool set_up_connection();
     void set_listen();
     json read_data(int);
     void add_client(int);
-    void manage_data(json);
+    void manage_data(json, const int &);
     bool autenticar(const int &, const int &);
+    std::vector<std::string> get_room_list();
 
 };
 
