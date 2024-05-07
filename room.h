@@ -10,7 +10,8 @@ class Room
         int client_x;
         
     public:
-        Room(int);
+       
+        Room(const int &);
         ~Room(){
             //delete [] table;
         }

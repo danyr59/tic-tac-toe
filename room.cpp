@@ -1,6 +1,7 @@
 #include "room.h"
 
-Room::Room(int cl_o) : client_o(cl_o), client_x(-1)
+
+Room::Room(const int& cl_o) : client_o(cl_o), client_x(-1)
 {
     memset(table, false, sizeof(table));
 }
