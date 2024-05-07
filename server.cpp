@@ -1,6 +1,6 @@
 #include "server.h"
 
-Server::Server(int port) : list_client(), mtx_client(), mtx_fds()//, list_room()
+Server::Server(int port) : list_client(), mtx_client(), mtx_fds() //, list_room()
 {
 
     struct sockaddr_in serv_addr;
@@ -54,8 +54,17 @@ bool Server::send_message(const int &cli_sockfd, json data)
     return true;
 }
 
-void Server::set_up_room(int listening_sockeck_fd, int *client_socket_fd)
+bool Server::create_room(const std::string &key, const int &fd)
 {
+    auto find = list_room.find(key);
+    if (find == list_room.end())
+    {
+        list_room[key] = std::make_unique<Room>(fd);
+
+        return true;
+    }
+
+    return false;
 }
 
 json Server::read_data(int cli_fd)
@@ -70,7 +79,7 @@ json Server::read_data(int cli_fd)
     try
     {
         js = json::parse(str_json);
-       // std::cout << js["dato"] << " : " << js["dato2"] << std::endl;
+        // std::cout << js["dato"] << " : " << js["dato2"] << std::endl;
     }
     catch (const std::exception &e)
     {
@@ -79,7 +88,7 @@ json Server::read_data(int cli_fd)
     return js;
 }
 
-void Server::manage_data(json j,const int &fd)
+void Server::manage_data(json j, const int &fd)
 {
     if (j.find("action") != j.end())
     {
@@ -88,7 +97,17 @@ void Server::manage_data(json j,const int &fd)
         {
         case ACTION::NEW_ROOM:
         {
-            // Aquí va el código para manejar la acción NEW_ROOM
+            std::string key = j["key_room"];
+            json res = {{"action", static_cast<int>(ACTION::NEW_ROOM)}};
+            if (create_room(key, fd))
+            {
+                res["status"] == 1;
+            }else
+            {
+                res["status"] = 0;
+            }
+
+            send_message(fd, res);
             break;
         }
         case ACTION::CHOOSE_ROOM:
@@ -115,10 +134,10 @@ void Server::manage_data(json j,const int &fd)
         {
             // Aquí va el código para manejar la acción LIST_ROOM
             std::vector<std::string> list = get_room_list();
-            json j = {{"action",  static_cast<int>(ACTION::LIST_ROOM)}};
+            json j = {{"action", static_cast<int>(ACTION::LIST_ROOM)}};
             j["list"] = {};
 
-            for(const std::string &s : list)
+            for (const std::string &s : list)
                 j["list"].push_back(s);
 
             send_message(fd, j);
@@ -139,7 +158,7 @@ std::vector<std::string> Server::get_room_list()
     std::vector<std::string> list;
     for (const auto &r : list_room)
     {
-       list.push_back(r.first);
+        list.push_back(r.first);
     }
 
     return list;
@@ -206,6 +225,7 @@ bool Server::autenticar(const int &fd_client, const int &id)
     json data = {
         {"action", static_cast<int>(ACTION::AUTHENTICATION)},
         {"id", id},
+
     };
 
     send_message(fd_client, data);
@@ -246,7 +266,6 @@ bool Server::set_up_connection()
 
 Server::~Server()
 {
-
     if (hilo->joinable())
     {
         hilo->join();

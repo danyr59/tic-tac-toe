@@ -14,9 +14,23 @@ client.on('connect', () => {
     if(n_data.action == 0)
     {
       setTimeout(() =>{
-        client.write(JSON.stringify({action: 6}));
+        client.write(JSON.stringify({action: 1, key_room: "prueba"}));
         
-      }, 4000);
+      }, 3000);
+    }
+
+    if(n_data.action == 1)
+    {
+      if(n_data.status == 1)
+       {
+         setTimeout(() =>{
+           client.write(JSON.stringify({action: 6}));
+           
+         }, 1000);
+       }else
+       {
+        console.log("no se creo la sala");
+       }
     }
     //client.write("Hola");
 
