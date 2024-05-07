@@ -22,7 +22,6 @@
 #include "util.h"
 #include "room.h"
 
-#define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 
 using json = nlohmann::json;
@@ -48,7 +47,7 @@ public:
     ~Server();
 
     bool send_message(const int &cli_sockfd, json msg);
-    void set_up_room(int , int *);
+    bool choose_room(const std::string &, const int &);
     void start();
     bool set_up_connection();
     void set_listen();

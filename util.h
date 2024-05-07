@@ -6,6 +6,8 @@
 #include <cstring>
 #include <cerrno>
 
+#define BUFFER_SIZE 1024
+
 enum ACTION {
     AUTHENTICATION = 0,
     NEW_ROOM =1,

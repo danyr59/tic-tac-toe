@@ -67,6 +67,21 @@ bool Server::create_room(const std::string &key, const int &fd)
     return false;
 }
 
+bool Server::choose_room(const std::string &key, const int &fd)
+{
+    auto find = list_room.find(key);
+    if (find != list_room.end() && find->second->available)
+    {
+        mtx_fds.lock();
+        find->second->Init(fd,fds,nfds);
+        mtx_fds.unlock();
+        return true;
+        
+    }
+
+    return false;
+}
+
 json Server::read_data(int cli_fd)
 {
     json js;
@@ -101,7 +116,7 @@ void Server::manage_data(json j, const int &fd)
             json res = {{"action", static_cast<int>(ACTION::NEW_ROOM)}};
             if (create_room(key, fd))
             {
-                res["status"] == 1;
+                res["status"] = 1;
             }else
             {
                 res["status"] = 0;
@@ -112,7 +127,18 @@ void Server::manage_data(json j, const int &fd)
         }
         case ACTION::CHOOSE_ROOM:
         {
-            // Aquí va el código para manejar la acción CHOOSE_ROOM
+            std::string key = j["key_room"];
+            json res = {{"action", static_cast<int>(ACTION::CHOOSE_ROOM)}};
+            
+            if (choose_room(key, fd))
+            {
+                res["status"] = 1;
+            }else
+            {
+                res["status"] = 0;
+            }
+            
+            send_message(fd, res);
             break;
         }
         case ACTION::SELECT_MOVEMENT:
