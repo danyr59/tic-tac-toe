@@ -1,3 +1,5 @@
 server
 .vscode
 poll.c
+
+*.o
