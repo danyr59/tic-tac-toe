@@ -1,9 +1,16 @@
 const net = require('net');
+const readline = require('readline');
 
 const client = net.createConnection({
   host: 'localhost',
   port: 5000
 });
+
+var rol = 0;
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+    });
 
 client.on('connect', () => {
   console.log('Conectado al servidor');
@@ -13,24 +20,18 @@ client.on('connect', () => {
     console.log('Datos recibidos:', n_data);
     if(n_data.action == 0)
     {
-      setTimeout(() =>{
-        client.write(JSON.stringify({action: 1, key_room: "prueba"}));
-        
-      }, 3000);
+        setTimeout(() =>{
+            client.write(JSON.stringify({action: 6}));
+            
+        }, 1000);
     }
 
-    if(n_data.action == 1)
+    if(n_data.action == 6)
     {
-      if(n_data.status == 1)
-       {
-         setTimeout(() =>{
-           client.write(JSON.stringify({action: 6}));
-           
-         }, 1000);
-       }else
-       {
-        console.log("no se creo la sala");
-       }
+        setTimeout(() =>{
+            client.write(JSON.stringify({action: 2, key_room : "prueba"}));
+            
+        }, 1000);
     }
 
     if(n_data.action == 7)
@@ -71,4 +72,5 @@ client.on('error', (error) => {
 
 client.on('close', () => {
   console.log('Conexión cerrada');
+  rl.close();
 });

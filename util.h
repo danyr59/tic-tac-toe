@@ -15,7 +15,15 @@ enum ACTION {
     SELECT_MOVEMENT = 3,
     OUT_ROOM = 4,
     OUT_GAME = 5,
-    LIST_ROOM = 6
+    LIST_ROOM = 6,
+    START_GAME = 7
+};
+
+enum ACTION_GAME {
+    MOVE = 10,
+    CLOSE = 11,
+    RESTART = 12,
+    UPDATE = 13
 };
 
 /*
