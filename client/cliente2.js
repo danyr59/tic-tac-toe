@@ -44,8 +44,8 @@ client.on('connect', () => {
     {
         if(n_data.turn == rol)
         {
-            rl.question('Por favor, introduce un movimiento: ', (dato) => {
-                console.log(`El dato recibido es: ${dato}`);
+            rl.question('Por favor, introduce un movimiento: ', (d) => {
+                client.write(JSON.stringify({action: 10, move: parseInt(d)}));
             });
         }
     }

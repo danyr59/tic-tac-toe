@@ -1,9 +1,15 @@
 const net = require('net');
+const readline = require('readline');
 
 const client = net.createConnection({
   host: 'localhost',
   port: 5000
 });
+var rol = 0;
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+    });
 
 client.on('connect', () => {
   console.log('Conectado al servidor');
@@ -43,8 +49,8 @@ client.on('connect', () => {
     {
         if(n_data.turn == rol)
         {
-            rl.question('Por favor, introduce un movimiento: ', (dato) => {
-                console.log(`El dato recibido es: ${dato}`);
+            rl.question('Por favor, introduce un movimiento: ', (d) => {
+              client.write(JSON.stringify({action: 10, move: parseInt(d)}));
             });
         }
     }

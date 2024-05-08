@@ -20,7 +20,10 @@ void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
     }
 
     fds[0].fd = client_o;
+    fds[0].events = POLLIN;
     fds[1].fd = client_x;
+    fds[1].events = POLLIN;
+
     json j = {{"action", ACTION::START_GAME}};
     j["rol"] = 0;
     send_message(client_o, j);
@@ -165,9 +168,9 @@ void Room::send_update()
 {
     json res;
     res["action"] = ACTION_GAME::UPDATE;
-    res["table"] = {{table[0], table[1], table[2]},
-                    {table[3], table[4], table[5]}, 
-                    {table[6], table[7], table[8]}};
+    res["table"] = {{table[0][0], table[0][1], table[0][2]},
+                    {table[1][0], table[1][1], table[1][2]}, 
+                    {table[2][0], table[2][1], table[2][2]}};
     res["turn"] = turn;
     send_message(client_o, res);
     send_message(client_x, res);
