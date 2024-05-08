@@ -130,7 +130,10 @@ void Server::manage_data(json j, const int &fd)
             std::string key = j["key_room"];
             json res = {{"action", static_cast<int>(ACTION::CHOOSE_ROOM)}};
             
-            if (!choose_room(key, fd))
+            if (choose_room(key, fd))
+            {
+                res["status"] = 1;
+            }else
             {
                 res["status"] = 0;
                 send_message(fd, res);

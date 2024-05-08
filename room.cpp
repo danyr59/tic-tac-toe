@@ -21,7 +21,7 @@ void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
 
     fds[0].fd = client_o;
     fds[1].fd = client_x;
-    json j = {"action" : ACTION::START_GAME};
+    json j = {{"action", ACTION::START_GAME}};
     j["rol"] = 0;
     send_message(client_o, j);
     j["rol"] = 1;
