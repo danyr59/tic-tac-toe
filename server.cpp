@@ -59,7 +59,9 @@ bool Server::create_room(const std::string &key, const int &fd)
     auto find = list_room.find(key);
     if (find == list_room.end())
     {
-        list_room[key] = std::make_unique<Room>(fd);
+        list_room[key] = std::make_unique<Room>(fd, key, [this] (const int & client_o, const int &client_x, std::string key){
+            this->close_room(client_o, client_x, key);
+        });
 
         return true;
     }
@@ -73,10 +75,9 @@ bool Server::choose_room(const std::string &key, const int &fd)
     if (find != list_room.end() && find->second->available)
     {
         mtx_fds.lock();
-        find->second->Init(fd,fds,nfds);
+        find->second->Init(fd, fds, nfds);
         mtx_fds.unlock();
         return true;
-        
     }
 
     return false;
@@ -117,7 +118,8 @@ void Server::manage_data(json j, const int &fd)
             if (create_room(key, fd))
             {
                 res["status"] = 1;
-            }else
+            }
+            else
             {
                 res["status"] = 0;
             }
@@ -129,16 +131,17 @@ void Server::manage_data(json j, const int &fd)
         {
             std::string key = j["key_room"];
             json res = {{"action", static_cast<int>(ACTION::CHOOSE_ROOM)}};
-            
+
             if (choose_room(key, fd))
             {
                 res["status"] = 1;
-            }else
+            }
+            else
             {
                 res["status"] = 0;
                 send_message(fd, res);
             }
-            
+
             break;
         }
         case ACTION::SELECT_MOVEMENT:
@@ -298,4 +301,13 @@ Server::~Server()
     }
 
     delete hilo;
+}
+
+void Server::close_room(const int &client_x, const int &client_o, std::string &key_room)
+{
+    add_client(client_o);
+    add_client(client_x);
+    //mtx_fds.lock();
+    //delete list_room[key_room];
+    //mtx_fds.unlock();
 }

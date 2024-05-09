@@ -57,6 +57,9 @@ public:
     bool autenticar(const int &, const int &);
     bool create_room(const std::string &, const int &);
     std::vector<std::string> get_room_list();
+    
+
+    void close_room(const int &, const int &, std::string &);
 
 };
 

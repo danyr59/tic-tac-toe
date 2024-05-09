@@ -1,9 +1,11 @@
 #include "room.h"
 
-Room::Room(const int &cl_o) : client_o(cl_o), client_x(-1), num_fds(2)
+Room::Room(const int &cl_o, const std::string &_key_room, closeRoomServer f) : client_o(cl_o), client_x(-1), num_fds(2), key_room(_key_room)
 {
+    close_room = f;
     memset(table, -1, sizeof(table));
     available = true;
+    _restart = false;
 }
 
 void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
@@ -60,6 +62,9 @@ json Room::read_data(int cli_fd, int &value_read)
 
 short Room::catch_move(const int &move, const int & fd)
 {
+    if(check_full())
+        return 4;
+
     if((turn && client_x != fd) || (!turn && client_o != fd))
         return 1;
  
@@ -69,10 +74,10 @@ short Room::catch_move(const int &move, const int & fd)
 
     table[move / 3][move % 3] = turn;
 
-    if(turn)
-        turn = false;
-    else
-        turn = true;
+    if(check_win(move))
+        return 3;
+
+    turn = !turn;
     
     return 0;
     // 3 / move  ->  filas
@@ -114,18 +119,21 @@ void Room::set_listen()
             }
         }
     }
+
+    
 }
 
 Room::~Room()
 {
     if (hilo->joinable())
     {
-        close(fds[0].fd);
-        close(fds[1].fd);
+        //close(fds[0].fd);
+        //close(fds[1].fd);
         hilo->join();
         delete hilo;
     }
 }
+
 
 void Room::manage_data(json j, const int &fd)
 {
@@ -137,21 +145,18 @@ void Room::manage_data(json j, const int &fd)
         case ACTION_GAME::MOVE:
         {
             int move = j["move"];
-            catch_move(move, fd);
-            send_update();
+            int status = catch_move(move, fd);
+            send_update(status);
             break;
         }
         case ACTION_GAME::CLOSE:
         {
-            
+            close(fd);
             break;
         }
         case ACTION_GAME::RESTART:
         {
-            memset(table, -1, sizeof(table));
-            turn = false;
-            send_update();
-            // Aquí va el código para manejar la acción SELECT_MOVEMENT
+            restart(fd);
             break;
         }
 
@@ -164,7 +169,7 @@ void Room::manage_data(json j, const int &fd)
     }
 }
 
-void Room::send_update()
+void Room::send_update(int status)
 {
     json res;
     res["action"] = ACTION_GAME::UPDATE;
@@ -172,8 +177,44 @@ void Room::send_update()
                     {table[1][0], table[1][1], table[1][2]}, 
                     {table[2][0], table[2][1], table[2][2]}};
     res["turn"] = turn;
+    res["status"] = status;
+
+    if(status == 3)
+    {
+        res["action"] = ACTION_GAME::WIN;
+    }
+
     send_message(client_o, res);
     send_message(client_x, res);
+}
+
+bool Room::check_win(const int & move)
+{
+    int row = move / 3;
+    int col = move % 3;
+
+    if(table[row][0] == table[row][1] && table[row][1] == table[row][2])
+        return true;
+    if(table[0][col] == table[1][col] && table[1][col] == table[2][col])
+        return true;
+    if((table[1][1] == table[0][0] && table[1][1] == table[2][2]) || (table[1][1] == table[0][2] && table[1][1] == table[2][0]))
+        return true;
+
+    return false;
+}
+
+
+bool Room::check_full()
+{
+    for(int i = 0 ; i< 3 ; i++){
+        
+        if(table[i][0] == -1 || table[i][1] == -1  || table[i][2] == -1 )
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
@@ -184,4 +225,41 @@ bool Room::send_message(const int &cli_sockfd, json data)
     if (n < 0)
         return false;
     return true;
+}
+
+void Room::restart(const int &fd)
+{
+    if(_restart)
+    {
+        memset(table, -1, sizeof(table));
+        turn = false;
+        _restart = false;
+        send_update();
+    }else
+    {
+        _restart = true;
+        json js;
+        js["action"] == ACTION_GAME::RESTART;
+        // status 0 esperando a que el otro usuario este de acuerdo en reiniciar la partida
+        js["status"] = 0;
+        send_message(fd, js);
+        //otro usuario en espera de respuesta
+         js["status"] = 1;
+        if(fd == client_o)
+        {
+            send_message(client_x, js);
+        }else
+        {
+            send_message(client_o, js);
+        }
+    }
+
+}
+
+void Room::close(const int &fd)
+{
+    listening = false;
+
+    close_room(client_o, client_x, key_room);
+
 }

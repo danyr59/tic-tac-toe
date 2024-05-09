@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <cstring>
 #include <cerrno>
+#include <functional>
 
 #define BUFFER_SIZE 1024
 
@@ -23,7 +24,8 @@ enum ACTION_GAME {
     MOVE = 10,
     CLOSE = 11,
     RESTART = 12,
-    UPDATE = 13
+    UPDATE = 13,
+    WIN = 14
 };
 
 /*
