@@ -19,6 +19,7 @@ client.on('connect', () => {
     console.log('Datos recibidos:', n_data);
     if(n_data.action == 0)
     {
+      console.log("en el menu de inicio")
       setTimeout(() =>{
         client.write(JSON.stringify({action: 1, key_room: "prueba"}));
         
@@ -39,6 +40,14 @@ client.on('connect', () => {
        }
     }
 
+    if(n_data.action == 4)
+    {
+      console.log("se cerro la sala");
+      rl.question('nueva sala: ', (d) => {
+          client.write(JSON.stringify({action: 4, key_room: d}));
+      });
+    }
+
     if(n_data.action == 7)
     {
         rol = n_data.rol;
@@ -53,6 +62,10 @@ client.on('connect', () => {
           {
               rl.question('Por favor, introduce un movimiento: ', (d) => {
                 client.write(JSON.stringify({action: 10, move: parseInt(d)}));
+                if(d === "10")
+                  client.write(JSON.stringify({action: 11}));
+                else
+                  client.write(JSON.stringify({action: 10, move: parseInt(d)}));
               });
           }
         }

@@ -17,7 +17,7 @@ enum ACTION {
     OUT_ROOM = 4,
     OUT_GAME = 5,
     LIST_ROOM = 6,
-    START_GAME = 7
+    START_GAME = 7,
 };
 
 enum ACTION_GAME {

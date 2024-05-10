@@ -106,7 +106,6 @@ json Server::read_data(int cli_fd)
 
 void Server::manage_data(json j, const int &fd)
 {
-    clean_rooms();
     if (j.find("action") != j.end())
     {
         int action = j["action"];
@@ -114,6 +113,7 @@ void Server::manage_data(json j, const int &fd)
         {
         case ACTION::NEW_ROOM:
         {
+            clear_rooms();
             std::string key = j["key_room"];
             json res = {{"action", static_cast<int>(ACTION::NEW_ROOM)}};
             if (create_room(key, fd))
@@ -228,7 +228,7 @@ void Server::set_listen()
     }
 }
 
-void Server::add_client(int fd_client)
+void Server::add_client(int fd_client, bool new_client)
 {
     // Añadir el nuevo socket al array de fds
     int i;
@@ -243,8 +243,10 @@ void Server::add_client(int fd_client)
     }
 
     std::cout << "cliente: " << i << std::endl;
-
-    autenticar(fd_client, i);
+    if(new_client)
+        autenticar(fd_client, i);
+    else
+        reinsertar(fd_client, i);
     list_client.push_back(fd_client);
     ++nfds;
     mtx_fds.unlock();
@@ -254,6 +256,16 @@ bool Server::autenticar(const int &fd_client, const int &id)
 {
     json data = {
         {"action", static_cast<int>(ACTION::AUTHENTICATION)},
+        {"id", id},
+
+    };
+
+    send_message(fd_client, data);
+}
+void Server::reinsertar(const int &fd_client, const int &id)
+{
+    json data = {
+        {"action", static_cast<int>(ACTION::OUT_ROOM)},
         {"id", id},
 
     };
@@ -296,6 +308,7 @@ bool Server::set_up_connection()
 
 Server::~Server()
 {
+    clear_rooms();
     if (hilo->joinable())
     {
         hilo->join();
@@ -306,28 +319,28 @@ Server::~Server()
 
 void Server::close_room(const int &client_x, const int &client_o, std::string &key_room)
 {
-    add_client(client_o);
-    add_client(client_x);
-    //mtx_fds.lock();
-    //list_room[key_room].reset();
-    //list_room.erase(key_room);
-    //mtx_fds.unlock();
-}
+    add_client(client_o, false);
+    add_client(client_x, false);
 
-void Server::clean_rooms()
-{
-    if(list_room.size() == 0)
-        return;
-    std::vector<std::string> por_borrar;
-    for(auto &room : list_room)
+    if(closed_rooms.size() == 0)
     {
-        if(room.second->closed)
-        {
-            por_borrar.push_back(room.first);
-        }
+        closed_rooms.push_back(key_room);
+        return;
     }
 
-    for(const std::string &key : por_borrar)
+    auto result = std::find(closed_rooms.begin(), closed_rooms.end(), key_room);
+
+    if(result == closed_rooms.end())
+        closed_rooms.push_back(key_room);
+
+}
+
+void Server::clear_rooms()
+{
+    if(list_room.size() == 0 || closed_rooms.size() == 0)
+        return;
+
+    for(const std::string &key : closed_rooms)
         list_room.erase(key);
 
 }

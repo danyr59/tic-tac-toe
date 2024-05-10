@@ -73,6 +73,14 @@ client.on('connect', () => {
         
       }
     }
+
+    if(n_data.action == 4)
+    {
+      console.log("se cerro la sala");
+      rl.question('nueva sala: ', (d) => {
+          client.write(JSON.stringify({action: 1, key_room: d}));
+      });
+    }
     
     if(n_data.action == 12)
     {

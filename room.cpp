@@ -6,7 +6,6 @@ Room::Room(const int &cl_o, const std::string &_key_room, closeRoomServer f) : c
     memset(table, -1, sizeof(table));
     available = true;
     _restart = false;
-    closed = false;
 }
 
 void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
@@ -121,6 +120,8 @@ void Room::set_listen()
         }
     }
 
+    close();
+
     
 }
 
@@ -152,7 +153,7 @@ void Room::manage_data(json j, const int &fd)
         }
         case ACTION_GAME::CLOSE:
         {
-            close(fd);
+            listening = false;
             break;
         }
         case ACTION_GAME::RESTART:
@@ -257,9 +258,7 @@ void Room::restart(const int &fd)
 
 }
 
-void Room::close(const int &fd)
+void Room::close()
 {
-    listening = false;
     close_room(client_o, client_x, key_room);
-    closed = true;
 }

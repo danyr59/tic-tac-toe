@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <memory>
+#include <algorithm>
 
 #include <nlohmann/json.hpp>
 #include "util.h"
@@ -34,6 +35,7 @@ private:
     int  *cli_sockfd; 
     std::vector<int> list_client;
     std::unordered_map<std::string, std::unique_ptr<Room>> list_room;
+    std::vector<std::string> closed_rooms;
     std::mutex mtx_client;
     std::mutex mtx_fds;
     struct pollfd fds[MAX_CLIENTS];
@@ -52,15 +54,16 @@ public:
     bool set_up_connection();
     void set_listen();
     json read_data(int);
-    void add_client(int);
+    void add_client(int, bool = true);
     void manage_data(json, const int &);
     bool autenticar(const int &, const int &);
+    void reinsertar(const int &, const int &);
     bool create_room(const std::string &, const int &);
     std::vector<std::string> get_room_list();
     
 
     void close_room(const int &, const int &, std::string &);
-    void clean_rooms();
+    void clear_rooms();
 
 };
 

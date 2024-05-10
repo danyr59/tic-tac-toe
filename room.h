@@ -38,7 +38,7 @@ private:
     struct pollfd fds[2];
 
 public:
-    bool available, closed;
+    bool available;
     Room(const int &,const std::string &, closeRoomServer);
     ~Room();
     json read_data(int, int &);
@@ -59,7 +59,7 @@ public:
     //return false si hay posiciones disponibles por ocupar
     bool check_full();
 
-    void close(const int &);
+    void close();
     
 };
 
