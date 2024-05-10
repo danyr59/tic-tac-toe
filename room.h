@@ -38,7 +38,7 @@ private:
     struct pollfd fds[2];
 
 public:
-    bool available;
+    bool available, closed;
     Room(const int &,const std::string &, closeRoomServer);
     ~Room();
     json read_data(int, int &);

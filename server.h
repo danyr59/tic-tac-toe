@@ -60,6 +60,7 @@ public:
     
 
     void close_room(const int &, const int &, std::string &);
+    void clean_rooms();
 
 };
 

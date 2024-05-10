@@ -106,6 +106,7 @@ json Server::read_data(int cli_fd)
 
 void Server::manage_data(json j, const int &fd)
 {
+    clean_rooms();
     if (j.find("action") != j.end())
     {
         int action = j["action"];
@@ -308,6 +309,25 @@ void Server::close_room(const int &client_x, const int &client_o, std::string &k
     add_client(client_o);
     add_client(client_x);
     //mtx_fds.lock();
-    //delete list_room[key_room];
+    //list_room[key_room].reset();
+    //list_room.erase(key_room);
     //mtx_fds.unlock();
+}
+
+void Server::clean_rooms()
+{
+    if(list_room.size() == 0)
+        return;
+    std::vector<std::string> por_borrar;
+    for(auto &room : list_room)
+    {
+        if(room.second->closed)
+        {
+            por_borrar.push_back(room.first);
+        }
+    }
+
+    for(const std::string &key : por_borrar)
+        list_room.erase(key);
+
 }

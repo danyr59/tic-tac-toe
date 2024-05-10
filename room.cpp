@@ -6,6 +6,7 @@ Room::Room(const int &cl_o, const std::string &_key_room, closeRoomServer f) : c
     memset(table, -1, sizeof(table));
     available = true;
     _restart = false;
+    closed = false;
 }
 
 void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
@@ -62,9 +63,6 @@ json Room::read_data(int cli_fd, int &value_read)
 
 short Room::catch_move(const int &move, const int & fd)
 {
-    if(check_full())
-        return 4;
-
     if((turn && client_x != fd) || (!turn && client_o != fd))
         return 1;
  
@@ -73,6 +71,9 @@ short Room::catch_move(const int &move, const int & fd)
         return 2;
 
     table[move / 3][move % 3] = turn;
+
+    if(check_full())
+        return 4;
 
     if(check_win(move))
         return 3;
@@ -193,11 +194,11 @@ bool Room::check_win(const int & move)
     int row = move / 3;
     int col = move % 3;
 
-    if(table[row][0] == table[row][1] && table[row][1] == table[row][2])
+    if(table[row][0] != -1 && table[row][0] == table[row][1] && table[row][1] == table[row][2])
         return true;
-    if(table[0][col] == table[1][col] && table[1][col] == table[2][col])
+    if(table[0][col] != -1 && table[0][col] == table[1][col] && table[1][col] == table[2][col])
         return true;
-    if((table[1][1] == table[0][0] && table[1][1] == table[2][2]) || (table[1][1] == table[0][2] && table[1][1] == table[2][0]))
+    if(table[1][1] != -1 && ( (table[1][1] == table[0][0] && table[1][1] == table[2][2]) || (table[1][1] == table[0][2] && table[1][1] == table[2][0])))
         return true;
 
     return false;
@@ -259,7 +260,6 @@ void Room::restart(const int &fd)
 void Room::close(const int &fd)
 {
     listening = false;
-
     close_room(client_o, client_x, key_room);
-
+    closed = true;
 }

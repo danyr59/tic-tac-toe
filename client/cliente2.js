@@ -42,12 +42,36 @@ client.on('connect', () => {
 
     if(n_data.action == 13)
     {
+      if(n_data.status == 0)
+      {
         if(n_data.turn == rol)
         {
             rl.question('Por favor, introduce un movimiento: ', (d) => {
-                client.write(JSON.stringify({action: 10, move: parseInt(d)}));
+              client.write(JSON.stringify({action: 10, move: parseInt(d)}));
             });
         }
+      }
+      if(n_data.status == 2)
+      {
+        console.log("casilla ocupada");
+        if(n_data.turn == rol)
+        {
+            rl.question('Por favor, introduce un movimiento: ', (d) => {
+              client.write(JSON.stringify({action: 10, move: parseInt(d)}));
+            });
+        }
+      }
+      if(n_data.status == 4)
+      {
+        rl.question('Tablero lleno,¿deseas reiniciar? (SI = 1, NO = 0): ', (d) => {
+          if(d == 0)
+            client.write(JSON.stringify({action: 11}));
+          else
+            client.write(JSON.stringify({action: 12}));
+
+        });
+        
+      }
     }
     
     if(n_data.action == 12)
