@@ -1,6 +1,27 @@
 const net = require('net');
 const readline = require('readline');
 
+
+const ACTION = {
+  AUTHENTICATION: 0,
+  NEW_ROOM: 1,
+  CHOOSE_ROOM: 2,
+  SELECT_MOVEMENT: 3,
+  OUT_ROOM: 4,
+  OUT_GAME: 5,
+  LIST_ROOM: 6,
+  START_GAME: 7,
+};
+
+const ACTION_GAME = {
+  MOVE: 10,
+  CLOSE: 11,
+  RESTART: 12,
+  UPDATE: 13,
+  WIN: 14,
+};
+
+
 const client = net.createConnection({
   host: 'localhost',
   port: 5000
@@ -18,15 +39,15 @@ client.on('connect', () => {
   client.on('data', (data) => {
     var n_data = JSON.parse(data);
     console.log('Datos recibidos:', n_data);
-    if(n_data.action == 0)
+    if(n_data.action == ACTION.AUTHENTICATION)
     {
         setTimeout(() =>{
-            client.write(JSON.stringify({action: 6}));
+            client.write(JSON.stringify({action: ACTION.LIST_ROOM}));
             
         }, 1000);
     }
 
-    if(n_data.action == 6)
+    if(n_data.action == ACTION.LIST_ROOM)
     {
         setTimeout(() =>{
             client.write(JSON.stringify({action: 2, key_room : "prueba"}));
