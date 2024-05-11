@@ -11,15 +11,26 @@ const ACTION = {
   OUT_GAME: 5,
   LIST_ROOM: 6,
   START_GAME: 7,
-};
-
-const ACTION_GAME = {
   MOVE: 10,
   CLOSE: 11,
   RESTART: 12,
   UPDATE: 13,
-  WIN: 14,
+  WIN: 14
 };
+
+const STATUS = {
+  OK: 0,
+  ITS_NOT_TURN: 1,
+  BOX_OCCUPED: 2,
+  WIN: 3,
+  ALL_BOX_OCCUPED: 4
+};
+
+const STATUS_RESTART = {
+  WAITING_ANOTHER_USER : 0,
+  WAITING_RESPONSE: 1
+
+}
 
 
 const client = net.createConnection({
@@ -29,90 +40,104 @@ const client = net.createConnection({
 
 var rol = 0;
 const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-    });
+  input: process.stdin,
+  output: process.stdout
+});
 
 client.on('connect', () => {
   console.log('Conectado al servidor');
-  
+
   client.on('data', (data) => {
     var n_data = JSON.parse(data);
     console.log('Datos recibidos:', n_data);
-    if(n_data.action == ACTION.AUTHENTICATION)
-    {
-        setTimeout(() =>{
-            client.write(JSON.stringify({action: ACTION.LIST_ROOM}));
-            
-        }, 1000);
+    if (n_data.action == ACTION.AUTHENTICATION) {
+      setTimeout(() => {
+        client.write(JSON.stringify({ action: ACTION.LIST_ROOM }));
+
+      }, 1000);
     }
 
-    if(n_data.action == ACTION.LIST_ROOM)
-    {
-        setTimeout(() =>{
-            client.write(JSON.stringify({action: 2, key_room : "prueba"}));
-            
-        }, 1000);
+    if (n_data.action == ACTION.LIST_ROOM) {
+      setTimeout(() => {
+        client.write(JSON.stringify({ action: ACTION.CHOOSE_ROOM, key_room: "prueba" }));
+
+      }, 1000);
     }
 
-    if(n_data.action == 7)
-    {
-        rol = n_data.rol;
-        console.log("juego inicializado");
+    if (n_data.action == ACTION.START_GAME) {
+      rol = n_data.rol;
+      console.log("juego inicializado");
     }
 
-    if(n_data.action == 13)
-    {
-      if(n_data.status == 0)
-      {
-        if(n_data.turn == rol)
-        {
-            rl.question('Por favor, introduce un movimiento: ', (d) => {
-              client.write(JSON.stringify({action: 10, move: parseInt(d)}));
-            });
+    if (n_data.action == ACTION.UPDATE) {
+      if (n_data.status == STATUS.OK) {
+        if (n_data.turn == rol) {
+          rl.question('Por favor, introduce un movimiento: ', (d) => {
+            client.write(JSON.stringify({ action: ACTION.MOVE, move: parseInt(d) }));
+          });
         }
       }
-      if(n_data.status == 2)
-      {
+
+      if (n_data.status == STATUS.ITS_NOT_TURN) {
+        console.log("turno equivocado")
+      }
+
+      if (n_data.status == STATUS.BOX_OCCUPED) {
         console.log("casilla ocupada");
-        if(n_data.turn == rol)
-        {
-            rl.question('Por favor, introduce un movimiento: ', (d) => {
-              client.write(JSON.stringify({action: 10, move: parseInt(d)}));
-            });
+        if (n_data.turn == rol) {
+          rl.question('Por favor, introduce un movimiento: ', (d) => {
+            client.write(JSON.stringify({ action: ACTION.MOVE, move: parseInt(d) }));
+          });
         }
       }
-      if(n_data.status == 4)
-      {
+      if (n_data.status == STATUS.WIN) {
+        console.log("!GANASTEE!");
+      }
+      
+      if (n_data.status == STATUS.ALL_BOX_OCCUPED) {
         rl.question('Tablero lleno,¿deseas reiniciar? (SI = 1, NO = 0): ', (d) => {
-          if(d == 0)
-            client.write(JSON.stringify({action: 11}));
+          if (d == 0)
+            client.write(JSON.stringify({ action: ACTION.CLOSE }));
           else
-            client.write(JSON.stringify({action: 12}));
+            client.write(JSON.stringify({ action: ACTION.RESTART }));
 
         });
-        
+
       }
     }
 
-    if(n_data.action == 4)
-    {
+    if (n_data.action == ACTION.OUT_ROOM) {
       console.log("se cerro la sala");
       rl.question('nueva sala: ', (d) => {
-          client.write(JSON.stringify({action: 1, key_room: d}));
+        client.write(JSON.stringify({ action: 1, key_room: d }));
       });
     }
-    
-    if(n_data.action == 12)
-    {
-        console.log("restaurando");
+
+    if (n_data.action == ACTION.RESTART) {
+      if(n_data.status == STATUS_RESTART.WAITING_ANOTHER_USER)
+      {
+        console.log("Esperando a que su compañero responda");
+
+      }
+      if(n_data.status == STATUS_RESTART.WAITING_RESPONSE)
+      {
+        // rl.question('Tu compañero marco para reiniciar,¿deseas reiniciar? (SI = 1, NO = 0): ', (d) => {
+        //   if (d == 0)
+        //     client.write(JSON.stringify({ action: ACTION.CLOSE }));
+        //   else
+        //     client.write(JSON.stringify({ action: ACTION.RESTART }));
+
+        // });
+        console.log("Tu compañero marco para continuar");
+
+      }
     }
     //client.write("Hola");
 
   });
 
 
-  
+
 });
 
 

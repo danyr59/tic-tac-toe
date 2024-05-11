@@ -62,6 +62,11 @@ json Room::read_data(int cli_fd, int &value_read)
 
 short Room::catch_move(const int &move, const int & fd)
 {
+    if(move == 12)
+    {
+        return 4;
+    }
+
     if((turn && client_x != fd) || (!turn && client_o != fd))
         return 1;
  
@@ -241,7 +246,7 @@ void Room::restart(const int &fd)
     {
         _restart = true;
         json js;
-        js["action"] == ACTION_GAME::RESTART;
+        js["action"] = ACTION_GAME::RESTART;
         // status 0 esperando a que el otro usuario este de acuerdo en reiniciar la partida
         js["status"] = 0;
         send_message(fd, js);

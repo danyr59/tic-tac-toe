@@ -48,6 +48,7 @@ public:
     //return 1 si no es el turno del cliente
     //return 2 si la posicion esta ocupada
     //return 3 si el jugador a ganado 
+    //return 4 si tablero esta lleno
     short catch_move(const int &, const int &);
     void manage_data(json, const int &);
     void send_update(int status = 0);
