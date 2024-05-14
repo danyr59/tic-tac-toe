@@ -1,5 +1,5 @@
 server
 .vscode
 poll.c
-cliente
+cliente/node_modules
 *.o
