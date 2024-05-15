@@ -66,15 +66,27 @@ const App = () => {
   const [rooms, setRooms] = useState([]); // Lista de salas
   const [currentRoom, setCurrentRoom] = useState(false); // Sala actual
 
+
   useEffect(() => {
-    window.electronAPI.listen((event, data) => {
+    startServer()
+    console.log("cuantas veces");
+  }, []);
+
+
+
+  useEffect(() => {
+
+    window.electronAPI.listenTextPlain((event, data) => {
+      //data = JSON.parse(data);
       console.log(data); // '¡Hola desde Electron!'
       // Haz algo con los datos recibidos
     });
+
+
   }, []);
 
-  const onMainButton = () => {
-    window.electronAPI.send('¡Hola Electron!');
+  const startServer = () => {
+    window.electronAPI.send('iniciar Servidor');
   }
 
   const handleJoin = (room) => {
@@ -94,9 +106,9 @@ const App = () => {
   };
 
   return currentRoom ? (
-    <Board />
+    <div></div>
   ) : (
-    <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} />
+    <div> </div>
   );
 }
 
