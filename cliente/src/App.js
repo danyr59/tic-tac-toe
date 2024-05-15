@@ -106,9 +106,9 @@ const App = () => {
   };
 
   return currentRoom ? (
-    <div></div>
+    <Board />
   ) : (
-    <div> </div>
+    <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} />
   );
 }
 
