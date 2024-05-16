@@ -64,7 +64,7 @@ function handleData(data) {
 
 function handleAuthentication() {
   console.log("autenticado");
-  mainWindow.webContents.send('mensaje-plano-desde-electron', 'Autenticado');
+  //mainWindow.webContents.send('mensaje-plano-desde-electron', 'Autenticado');
   // sendData({ action: ACTION.NEW_ROOM, key_room: "prueba" });
 }
 
@@ -124,21 +124,23 @@ client.on('connect', () => {
   ipcMain.on('accion-en-electron', (event, arg) => {
     console.log("event:", event);
     console.log("arg:", arg); // arg es el mensaje enviado desde React
-    if ("iniciar Servidor" == arg) {
-      mainWindow.webContents.send('mensaje-plano-desde-electron', 'Conectado al servidor');
-      return;
-    }
+    //if (arg.action == ACTION.AUTHENTICATION) {
+    //  mainWindow.webContents.send('mensaje-desde-electron', {action:ACTION.AUTHENTICATION});
+
+    //}
     //maneja la data que viene del electron app y aqui hace los write al servidor 
     console.log("antes de handle")
     handleData(arg)
 
     //aqui manejo la data del servidor y la mando al electron app
     client.on('data', (data) => {
+      console.log(data)
       //data = JSON.parse(data);
 
-      mainWindow.webContents.send('mensaje-desde-electron', data);
+      mainWindow.webContents.send('mensaje-desde-electron', JSON.parse(data));
     });
   });
+
 });
 
 client.on('error', (error) => {

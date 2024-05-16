@@ -117,6 +117,8 @@ const App = () => {
   const [rooms, setRooms] = useState(["sala1", "sala2"]); // Lista de salas
   const [currentRoom, setCurrentRoom] = useState(null); // Sala actual
   const [waiting, setWaiting] = useState(false);
+  const [dataActions, setDataActions] = useState(null);
+  const [id, setId] = useState(null);
 
   useEffect(() => {
     startServer()
@@ -127,7 +129,11 @@ const App = () => {
 
   useEffect(() => {
 
-    window.electronAPI.listenTextPlain((event, data) => {
+    window.electronAPI.listen((event, data) => {
+      setDataActions(data)
+      if(data.ACTION == ACTION.AUTHENTICATION){
+        setId(data.id);
+      }
       //data = JSON.parse(data);
       console.log(data); // '¡Hola desde Electron!'
       // Haz algo con los datos recibidos
@@ -137,7 +143,8 @@ const App = () => {
   }, []);
 
   const startServer = () => {
-    window.electronAPI.send('iniciar Servidor');
+    const data = {action: ACTION.AUTHENTICATION};
+    window.electronAPI.send(data);
   }
 
   const handleJoin = (room) => {
