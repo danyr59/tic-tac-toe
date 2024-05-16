@@ -25,14 +25,14 @@ const ACTION = {
 
 const STATUS = {
   OK: 0,
-  ITS_NOT_TURN : 1,
-  BOX_OCCUPED :2,
+  ITS_NOT_TURN: 1,
+  BOX_OCCUPED: 2,
   WIN: 3,
   ALL_BOX_OCCUPED: 4
 };
 
 const STATUS_RESTART = {
-  WAITING_ANOTHER_USER : 0,
+  WAITING_ANOTHER_USER: 0,
   WAITING_RESPONSE: 1
 
 }
@@ -42,10 +42,10 @@ const STATUS_RESTART = {
       renderItem={({ item }) => <Room room={item} onJoin={onJoin} />}
       keyExtractor={(item) => item.id}
     />*/
-const Room = ({ room, onJoin }) => (
+const Room = ({ room, onJoin, setWaiting }) => (
   <div className='salones'>
     <p>{room}</p>
-    <button onClick={() => onJoin(room)}>Join</button>
+    <button onClick={() => { onJoin(room); setWaiting(false) }}>Join</button>
   </div>
 );
 const CreateRoom = ({ onCreate, setView }) => {
@@ -55,7 +55,7 @@ const CreateRoom = ({ onCreate, setView }) => {
   };
 
   const crearRoom = () => {
-    
+
     console.log("crearRoom")
     onCreate(nameRoom)
   };
@@ -71,16 +71,19 @@ const CreateRoom = ({ onCreate, setView }) => {
   );
 };
 
-const RoomPortal = ({ rooms, onJoin, onCreate }) => {
+const RoomPortal = ({ rooms, onJoin, onCreate, dataActions, setWaiting }) => {
   const [view, setView] = useState(null);
-
+  const [r, setR] = useState([])
   const handleJoinPress = () => {
+    const data = { action: ACTION.LIST_ROOM };
+    window.electronAPI.send(data);
     setView('join');
   };
 
   const handleCreatePress = () => {
     setView('create');
   };
+
 
   return (
     <div style={{ alignItems: 'center' }}>
@@ -90,7 +93,7 @@ const RoomPortal = ({ rooms, onJoin, onCreate }) => {
           <ul>
             {rooms.map((item) => (
               <li key={item.id}>
-                <Room room={item} onJoin={onJoin} />
+                <Room room={item} onJoin={onJoin} setWaiting={setWaiting} />
               </li>
             ))}
           </ul>
@@ -114,11 +117,12 @@ const RoomPortal = ({ rooms, onJoin, onCreate }) => {
 
 // Componente principal de la aplicación
 const App = () => {
-  const [rooms, setRooms] = useState(["sala1", "sala2"]); // Lista de salas
+  const [rooms, setRooms] = useState([]); // Lista de salas
   const [currentRoom, setCurrentRoom] = useState(null); // Sala actual
   const [waiting, setWaiting] = useState(false);
   const [dataActions, setDataActions] = useState(null);
   const [id, setId] = useState(null);
+  const [rol, setRol] = useState(null);
 
   useEffect(() => {
     startServer()
@@ -131,36 +135,60 @@ const App = () => {
 
     window.electronAPI.listen((event, data) => {
       setDataActions(data)
-      if(data.ACTION == ACTION.AUTHENTICATION){
+      if (data.action == ACTION.AUTHENTICATION) {
         setId(data.id);
       }
+
+      if (data.action == ACTION.NEW_ROOM) {
+        if (data.status == 1) {
+          setWaiting(false);
+        } else {
+          //mostrar mensaje que no se pudo crear sala
+        }
+
+      }
+      if (data.action == ACTION.LIST_ROOM) {
+        if (data.list !== null) {
+          console.log("RoomPortal")
+          console.log(data.list);
+          //console.log(data.list)
+          setRooms(data.list);
+        }
+
+      }
+
+      if (data.action == ACTION.START_GAME) {
+        setRol(data.rol);
+      }
       //data = JSON.parse(data);
-      console.log(data); // '¡Hola desde Electron!'
+      // '¡Hola desde Electron!'
       // Haz algo con los datos recibidos
+      console.log(data.list);
     });
 
 
   }, []);
 
   const startServer = () => {
-    const data = {action: ACTION.AUTHENTICATION};
+    const data = { action: ACTION.AUTHENTICATION };
     window.electronAPI.send(data);
   }
 
   const handleJoin = (room) => {
     //  agregar la lógica para unirse a una sala
     setCurrentRoom(room);
+    setWaiting(true)
   };
   const handleCreate = (room) => {
     setCurrentRoom(room);
     setWaiting(true)
-    const action = {action: ACTION.NEW_ROOM, key_room: room};
+    const action = { action: ACTION.NEW_ROOM, key_room: room };
     window.electronAPI.send(action);
     //voy a simular cuando la contraparte cree la sala
-    setTimeout(() => {
-      
-      setWaiting(false)
-    }, 5000);
+    //setTimeout(() => {
+
+
+    //}, 5000);
 
 
   };
@@ -177,12 +205,12 @@ const App = () => {
   return currentRoom ? (
     !waiting ?
       (
-        <Board room={currentRoom} exit={handleExit} />
+        <Board room={currentRoom} exit={handleExit} dataActions={dataActions} />
       ) : (
         <h3>Esperando Conexion</h3>
       )
   ) : (
-    <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} />
+    <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} dataActions={dataActions} setWaiting={setWaiting} />
   );
 }
 

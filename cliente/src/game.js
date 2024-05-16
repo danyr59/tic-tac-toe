@@ -52,7 +52,7 @@ const Game = ({ currentPlayer, winner, onMove, onRestart, onExit, board, nameRoo
   );
 };
 
-const Tablero = ({room, exit}) => {
+const Tablero = ({room, exit,dataActions}) => {
   console.log(room)
   const [currentPlayer, setCurrentPlayer] = useState('Jugador 1');
   const [winner, setWinner] = useState(null);

@@ -56,6 +56,9 @@ function handleData(data) {
     case ACTION.NEW_ROOM:
       handleNewRoom(n_data);
       break;
+    case ACTION.LIST_ROOM:
+      handleListRoom(n_data);
+      break;
     default:
       console.log("Acción no reconocida.");
   }
@@ -75,6 +78,15 @@ function handleNewRoom(data) {
   // console.log("No se creó la sala");
   //}
 }
+
+function handleListRoom(data) {
+  //if (data.status === 1) {
+  sendData(data);
+  //} else {
+  // console.log("No se creó la sala");
+  //}
+}
+
 
 let mainWindow;
 
@@ -134,7 +146,7 @@ client.on('connect', () => {
 
     //aqui manejo la data del servidor y la mando al electron app
     client.on('data', (data) => {
-      console.log(data)
+      console.log(JSON.parse(data))
       //data = JSON.parse(data);
 
       mainWindow.webContents.send('mensaje-desde-electron', JSON.parse(data));
