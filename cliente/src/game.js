@@ -1,53 +1,59 @@
 import React, { useState } from 'react';
-import { Platform, TouchableOpacity as RNGHTouchableOpacity, View, Text, Button, FlatList } from 'react-native';
-import { TouchableOpacity as RNDomTouchableOpacity } from 'react-native-web';
 
-const TouchableOpacity = Platform.OS === 'web' ? RNDomTouchableOpacity : RNGHTouchableOpacity;
-
-// Componente de la celda del tablero mejorado
 const Cell = ({ value, onPress }) => (
-  <TouchableOpacity style={{ width: 50, height: 50, borderWidth: 1, justifyContent: 'center', alignItems: 'center' }} onPress={onPress}>
-    <Text style={{ fontSize: 24 }}>{value}</Text>
-  </TouchableOpacity>
+  <div
+    style={{
+      width: 50,
+      height: 50,
+      border: '1px solid black',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+    onClick={onPress}
+  >
+    <p style={{ fontSize: 24 }}>{value}</p>
+  </div>
 );
 
-
-// Componente del tablero del juego mejorado
 const Board = ({ board, onCellPress }) => (
-  <View style={{ alignItems: 'center' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
     {board.map((row, i) => (
-      <View key={i} style={{ flexDirection: 'row' }}>
+      <div key={i} style={{ display: 'flex', flexDirection: 'row' }}>
         {row.map((cell, j) => (
           <Cell key={j} value={cell} onPress={() => onCellPress(i, j)} />
         ))}
-      </View>
+      </div>
     ))}
-  </View>
+  </div>
 );
 
-
-// Componente del juego mejorado
-const Game = ({ currentPlayer, winner, onMove, onRestart, onExit, board }) => {
+const Game = ({ currentPlayer, winner, onMove, onRestart, onExit, board, nameRoom }) => {
   const handleCellPress = (i, j) => {
-    // la logica para manejar el movimiento del jugador
-    onMove(i, j);
+    // Lógica para manejar el movimiento del jugador
+    const newBoard = [...board];
+    if (!newBoard[i][j]) {
+      newBoard[i][j] = currentPlayer === 'Jugador 1' ? 'X' : 'O';
+      onMove(newBoard);
+    }
   };
 
   return (
-    <View style={{ alignItems: 'center' }}>
-      <Text style={{ fontSize: 24, marginBottom: 10 }}>Turno de {currentPlayer}</Text>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <p>Name Room: {nameRoom}</p>
+      <p style={{ fontSize: 24, marginBottom: 10 }}>Turno de {currentPlayer}</p>
       <Board board={board} onCellPress={handleCellPress} />
-      {winner && <Text style={{ fontSize: 24, marginVertical: 20 }}>{winner} ha ganado!</Text>}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '80%', marginTop: 20 }}>
-        <Button title="Reiniciar" onPress={onRestart} />
-        <Button title="Salir" onPress={onExit} />
-      </View>
-    </View>
+      {winner && <p style={{ fontSize: 24, marginVertical: 20 }}>{winner} ha ganado!</p>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%', marginTop: 20 }}>
+        <button onClick={onRestart}>Reiniciar</button>
+        <button onClick={onExit}>Salir</button>
+      </div>
+    </div>
   );
 };
 
-// Componente principal de la aplicacion mejorado
-const Tablero = () => {
+const Tablero = ({room, exit}) => {
+  console.log(room)
   const [currentPlayer, setCurrentPlayer] = useState('Jugador 1');
   const [winner, setWinner] = useState(null);
   const [board, setBoard] = useState([
@@ -56,19 +62,13 @@ const Tablero = () => {
     ['', '', ''],
   ]);
 
-  const handleMove = (i, j) => {
-    //  la logica para manejar los movimientos y verificar el ganador
-    const newBoard = [...board];
-    if (!newBoard[i][j]) {
-      newBoard[i][j] = currentPlayer === 'Jugador 1' ? 'X' : 'O';
-      setBoard(newBoard);
-      setCurrentPlayer(currentPlayer === 'Jugador 1' ? 'Jugador 2' : 'Jugador 1');
-      // Aquí verifica si hay un ganador y actualiza el estado de 'winner'
-    }
+  const handleMove = (newBoard) => {
+    // Lógica para verificar si hay un ganador y actualizar el estado de 'winner'
+    setBoard(newBoard);
+    setCurrentPlayer(currentPlayer === 'Jugador 1' ? 'Jugador 2' : 'Jugador 1');
   };
 
   const handleRestart = () => {
-    // Aquí puedes agregar la lógica para reiniciar el juego
     setCurrentPlayer('Jugador 1');
     setWinner(null);
     setBoard([
@@ -79,14 +79,15 @@ const Tablero = () => {
   };
 
   const handleExit = () => {
-    // Aquí puedes agregar la lógica para salir del juego
     setCurrentPlayer('Jugador 1');
     setWinner(null);
     setBoard([]);
+    exit();
   };
 
   return (
     <Game
+      nameRoom={room}
       currentPlayer={currentPlayer}
       winner={winner}
       onMove={handleMove}

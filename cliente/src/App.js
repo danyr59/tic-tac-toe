@@ -1,8 +1,8 @@
 //import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
-import { Platform, TouchableOpacity as RNGHTouchableOpacity, View, Text, Button, FlatList } from 'react-native';
-import { TouchableOpacity as RNDomTouchableOpacity } from 'react-native-web';
+//import { Platform, TouchableOpacity as RNGHTouchableOpacity, View, Text, Button, FlatList, } from 'react-native';
+//import { TouchableOpacity as RNDomTouchableOpacity } from 'react-native-web';
 import Board from './game';
 
 
@@ -12,12 +12,33 @@ import Board from './game';
       keyExtractor={(item) => item.id}
     />*/
 const Room = ({ room, onJoin }) => (
-  <View>
-    <Text>{room.name}</Text>
-    <Button title="Join" onPress={() => onJoin(room)} />
-  </View>
+  <div className='salones'>
+    <p>{room}</p>
+    <button onClick={() => onJoin(room)}>Join</button>
+  </div>
 );
+const CreateRoom = ({ onCreate, setView }) => {
+  const [nameRoom, setNameRoom] = useState(null);
+  const handleNameChange = (e) => {
+    setNameRoom(e.target.value);
+  };
 
+  const crearRoom = () => {
+    
+    console.log("crearRoom")
+    onCreate(nameRoom)
+  };
+  return (
+    <>
+      <p>Formulario para crear sala</p>
+      <input type="text" value={nameRoom} onChange={handleNameChange} />
+      <div>
+        <button onClick={crearRoom}>Crear Sala</button>
+        <button onClick={() => setView(null)}>Volver</button>
+      </div>
+    </>
+  );
+};
 
 const RoomPortal = ({ rooms, onJoin, onCreate }) => {
   const [view, setView] = useState(null);
@@ -31,41 +52,40 @@ const RoomPortal = ({ rooms, onJoin, onCreate }) => {
   };
 
   return (
-    <View style={{ alignItems: 'center' }}>
-      <Text style={{ fontSize: 24, marginBottom: 10 }}>Portal</Text>
+    <div style={{ alignItems: 'center' }}>
+      <p style={{ fontSize: 24, marginBottom: 10 }}>Portal</p>
       {view === 'join' && (
         <>
-          <FlatList
-            data={rooms}
-            renderItem={({ item }) => <Room room={item} onJoin={onJoin} />}
-            keyExtractor={(item) => item.id}
-          />
-          <Button title="Volver" onPress={() => setView(null)} />
+          <ul>
+            {rooms.map((item) => (
+              <li key={item.id}>
+                <Room room={item} onJoin={onJoin} />
+              </li>
+            ))}
+          </ul>
+          <button onClick={() => setView(null)}>Volver</button>
         </>
       )}
       {view === 'create' && (
         <>
-          <Text>Formulario para crear sala</Text>
-          <Button title="Volver" onPress={() => setView(null)} />
+          <CreateRoom onCreate={onCreate} setView={setView} />
         </>
       )}
       {!view && (
         <>
-          <Button title="Unirse a Sala" onPress={handleJoinPress} />
-          <Button title="Crear Sala" onPress={handleCreatePress} />
+          <button onClick={handleJoinPress}>Unirse a Sala</button>
+          <button onClick={handleCreatePress}>Crear Sala</button>
         </>
       )}
-    </View>
+    </div>
   );
 };
 
-
-
 // Componente principal de la aplicación
 const App = () => {
-  const [rooms, setRooms] = useState([]); // Lista de salas
-  const [currentRoom, setCurrentRoom] = useState(false); // Sala actual
-
+  const [rooms, setRooms] = useState(["sala1", "sala2"]); // Lista de salas
+  const [currentRoom, setCurrentRoom] = useState(null); // Sala actual
+  const [waiting, setWaiting] = useState(false);
 
   useEffect(() => {
     startServer()
@@ -94,9 +114,19 @@ const App = () => {
     setCurrentRoom(room);
   };
   const handleCreate = (room) => {
-    //  agregar la lógica para unirse a una sala
-    // setCurrentRoom(room);
+    setCurrentRoom(room);
+    setWaiting(true)
+    console.log(waiting)
+    //voy a simular cuando la contraparte cree la sala
+    setTimeout(() => {
+      
+      setWaiting(false)
+    }, 5000);
+
+
   };
+
+
 
 
 
@@ -106,7 +136,12 @@ const App = () => {
   };
 
   return currentRoom ? (
-    <Board />
+    !waiting ?
+      (
+        <Board room={currentRoom} exit={handleExit} />
+      ) : (
+        <h3>Esperando Conexion</h3>
+      )
   ) : (
     <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} />
   );
