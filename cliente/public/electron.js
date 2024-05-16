@@ -45,7 +45,8 @@ function sendData(data) {
 
 
 function handleData(data) {
-  const n_data = JSON.parse(data);
+  console.log("handleData")
+  const n_data = data;
   console.log('Datos recibidos:', n_data);
 
   switch (n_data.action) {
@@ -64,15 +65,15 @@ function handleData(data) {
 function handleAuthentication() {
   console.log("autenticado");
   mainWindow.webContents.send('mensaje-plano-desde-electron', 'Autenticado');
- // sendData({ action: ACTION.NEW_ROOM, key_room: "prueba" });
+  // sendData({ action: ACTION.NEW_ROOM, key_room: "prueba" });
 }
 
 function handleNewRoom(data) {
-  if (data.status === 1) {
-    sendData({ action: ACTION.LIST_ROOM });
-  } else {
-    console.log("No se creó la sala");
-  }
+  //if (data.status === 1) {
+  sendData(data);
+  //} else {
+  // console.log("No se creó la sala");
+  //}
 }
 
 let mainWindow;
@@ -86,9 +87,9 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
-    
+
   });
-  
+
 
   mainWindow.loadURL('http://localhost:3000');
 
@@ -118,19 +119,23 @@ const client = net.createConnection({
 
 
 client.on('connect', () => {
-  
-  
+
+
   ipcMain.on('accion-en-electron', (event, arg) => {
     console.log("event:", event);
     console.log("arg:", arg); // arg es el mensaje enviado desde React
-    if("iniciar Servidor" == arg){
+    if ("iniciar Servidor" == arg) {
       mainWindow.webContents.send('mensaje-plano-desde-electron', 'Conectado al servidor');
+      return;
     }
-    
-  
+    //maneja la data que viene del electron app y aqui hace los write al servidor 
+    console.log("antes de handle")
+    handleData(arg)
+
+    //aqui manejo la data del servidor y la mando al electron app
     client.on('data', (data) => {
       //data = JSON.parse(data);
-      handleData(data)
+
       mainWindow.webContents.send('mensaje-desde-electron', data);
     });
   });
