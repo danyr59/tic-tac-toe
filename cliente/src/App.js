@@ -3,7 +3,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 //import { Platform, TouchableOpacity as RNGHTouchableOpacity, View, Text, Button, FlatList, } from 'react-native';
 //import { TouchableOpacity as RNDomTouchableOpacity } from 'react-native-web';
-import Board from './game';
+import Tablero from './game';
 
 
 
@@ -129,12 +129,32 @@ const App = () => {
   const [dataActions, setDataActions] = useState(null);
   const [id, setId] = useState(null);
   const [rol, setRol] = useState(null);
+  const [board, setBoard] = useState([
+    ['', '', ''],
+    ['', '', ''],
+    ['', '', ''],
+  ]);
 
   useEffect(() => {
     startServer()
-    console.log("cuantas veces");
+    
   }, []);
+  
+  const TAM_BOARD = 3
 
+  const parseTable = (table) =>
+  {
+    let newBoard = [[],[],[]];
+      for(let i = 0;i < TAM_BOARD; ++i)
+      {
+          for(let j = 0; j < TAM_BOARD; ++j)
+          {
+            newBoard[i][j] = table[i][j] == -1 ? "" : (table[i][j] == 0 ? "O" : "X");
+          }
+      }
+    console.log("Tablero: ", newBoard);
+    setBoard(newBoard);
+  }
 
 
   useEffect(() => {
@@ -162,22 +182,16 @@ const App = () => {
         }
 
       }
-      if (data.action == ACTION.CHOOSE_ROOM) {
-        console.log(data)
-        setWaiting(false);
-        /*
-        if (data.status == 1) {
-          
-        } else {
-          //mostrar mensaje que no se pudo crear sala
-        }
-        */
-
-      }
-
       if (data.action == ACTION.START_GAME) {
+        
         setRol(data.rol);
+        setWaiting(false);
+        parseTable(data.table);     
+        
+
       }
+
+      
       //data = JSON.parse(data);
       // '¡Hola desde Electron!'
       // Haz algo con los datos recibidos
@@ -202,11 +216,7 @@ const App = () => {
     setWaiting(true)
     const action = { action: ACTION.NEW_ROOM, key_room: room };
     window.electronAPI.send(action);
-    //voy a simular cuando la contraparte cree la sala
-    //setTimeout(() => {
-
-
-    //}, 5000);
+    
 
 
   };
@@ -223,7 +233,7 @@ const App = () => {
   return currentRoom ? (
     !waiting ?
       (
-        <Board room={currentRoom} exit={handleExit} dataActions={dataActions} />
+        <Tablero board={board}room={currentRoom} exit={handleExit}  />
       ) : (
         <h3>Esperando Conexion</h3>
       )

@@ -52,15 +52,11 @@ const Game = ({ currentPlayer, winner, onMove, onRestart, onExit, board, nameRoo
   );
 };
 
-const Tablero = ({room, exit,dataActions}) => {
+const Tablero = ({board, room, exit}) => {
   console.log(room)
   const [currentPlayer, setCurrentPlayer] = useState('Jugador 1');
   const [winner, setWinner] = useState(null);
-  const [board, setBoard] = useState([
-    ['', '', ''],
-    ['', '', ''],
-    ['', '', ''],
-  ]);
+
 
   const handleMove = (newBoard) => {
     // Lógica para verificar si hay un ganador y actualizar el estado de 'winner'
@@ -71,11 +67,6 @@ const Tablero = ({room, exit,dataActions}) => {
   const handleRestart = () => {
     setCurrentPlayer('Jugador 1');
     setWinner(null);
-    setBoard([
-      ['', '', ''],
-      ['', '', ''],
-      ['', '', ''],
-    ]);
   };
 
   const handleExit = () => {

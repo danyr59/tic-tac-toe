@@ -62,6 +62,9 @@ function handleData(data) {
     case ACTION.CHOOSE_ROOM: 
       sendData(n_data);
       break;
+    case ACTION.UPDATE:
+      
+      break;
     default:
       console.log("Acción no reconocida.");
   }
@@ -70,24 +73,19 @@ function handleData(data) {
 
 function handleAuthentication() {
   console.log("autenticado");
-  //mainWindow.webContents.send('mensaje-plano-desde-electron', 'Autenticado');
-  // sendData({ action: ACTION.NEW_ROOM, key_room: "prueba" });
+ 
 }
 
 function handleNewRoom(data) {
-  //if (data.status === 1) {
+  
   sendData(data);
-  //} else {
-  // console.log("No se creó la sala");
-  //}
+  
 }
 
 function handleListRoom(data) {
-  //if (data.status === 1) {
+ 
   sendData(data);
-  //} else {
-  // console.log("No se creó la sala");
-  //}
+  
 }
 
 
@@ -139,11 +137,7 @@ client.on('connect', () => {
   ipcMain.on('accion-en-electron', (event, arg) => {
     console.log("event:", event);
     console.log("arg:", arg); // arg es el mensaje enviado desde React
-    //if (arg.action == ACTION.AUTHENTICATION) {
-    //  mainWindow.webContents.send('mensaje-desde-electron', {action:ACTION.AUTHENTICATION});
-
-    //}
-    //maneja la data que viene del electron app y aqui hace los write al servidor 
+    
     console.log("antes de handle")
     handleData(arg)
 
@@ -162,6 +156,8 @@ client.on('connect', () => {
   });
 
 });
+
+
 
 client.on('error', (error) => {
   console.error("Error de conexión:", error);
