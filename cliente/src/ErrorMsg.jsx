@@ -1,11 +1,11 @@
 
 
-const ErrorMsg = ({msg}) =>
+const ErrorMsg = ({msg, onClose}) =>
 {
     if(msg == "")
         return <></>
     return(
-        <div className="error-msg">
+        <div onClick={onClose} className="error-msg">
             <img src="/error.svg" alt="" />
             <p>{msg}</p>
         </div>

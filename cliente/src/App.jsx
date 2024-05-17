@@ -152,7 +152,9 @@ const App = () => {
         if (data.status == 1) {
           setWaiting(true);
         } else {
-          setErrorMsg("No se pudo crear sala");
+          setErrorMsg("El nombre de la sala ya esta registrado");
+          setWaiting(false);
+          setCurrentRoom(null);
           //mostrar mensaje que 
         }
 
@@ -259,6 +261,11 @@ const App = () => {
     setCurrentRoom(null);
   };
 
+  const handleCloseMsg = () => 
+  {
+    setErrorMsg("");
+  }
+
   let display, winS = <></>;
   
   if(currentRoom && !waiting)
@@ -293,7 +300,7 @@ const App = () => {
       <main>
         {display}
       </main>
-      <ErrorMsg msg={errorMsg}/>
+      <ErrorMsg onClose={handleCloseMsg} msg={errorMsg}/>
       {winS}
     </div>
   );
