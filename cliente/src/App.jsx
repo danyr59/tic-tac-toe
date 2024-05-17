@@ -8,6 +8,8 @@ import Tablero from './game';
 import { ACTION,STATUS, STATUS_RESTART } from './utils';
 import ErrorMsg from './ErrorMsg';
 import WaitingPage from './WaitingPage';
+import WinScreen from './WinScreen';
+import LostScreen from './LostScreen';
 
 
 const Room = ({ room, onJoin, setWaiting }) => {
@@ -107,6 +109,7 @@ const App = () => {
   const [rol, setRol] = useState(null);
   const [id, setId] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [win, setWin] = useState(null);
   
   const [turn, setTurn] = useState(null);
   const [board, setBoard] = useState([
@@ -180,12 +183,26 @@ const App = () => {
         setTurn(rol == data.turn);
         parseTable(data.table);     
         console.log("status :", data.status);
+        setErrorMsg("")
+        if(data.status == STATUS.BOX_OCCUPED){
+          setErrorMsg("¡Casilla Ocupada!");
+        }
+        if(data.status == STATUS.ITS_NOT_TURN){
+          setErrorMsg("¡Turno Equivocado!")
+        }
+        if(data.status == STATUS.ALL_BOX_OCCUPED){
+          setErrorMsg("Tablero lleno ,¿deseas reiniciar?")
+        }
 
       }
       if (data.action == ACTION.WIN) {
         if(rol == data.turn)
         {
           console.log("GANASTEE");
+          setWin(1);
+        }else
+        {
+          setWin(0);
         }
         //setTurn(rol == data.turn);
         parseTable(data.table);     
@@ -203,7 +220,8 @@ const App = () => {
       }
       if (data.action == ACTION.OUT_ROOM) {
         setCurrentRoom(null);
-  
+        setWaiting(false);
+        setWin(null);
       }
 
   
@@ -241,7 +259,7 @@ const App = () => {
     setCurrentRoom(null);
   };
 
-  let display;
+  let display, winS = <></>;
   
   if(currentRoom && !waiting)
   display = <Tablero board={board}room={currentRoom} exit={handleExit}  turn={turn}  />
@@ -252,6 +270,17 @@ const App = () => {
   {
     
     display = <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} dataActions={dataActions} setWaiting={setWaiting} />;
+  }
+
+  if(win !== null)
+  {
+    if(win)
+    {
+      winS = <WinScreen/>;
+    } else
+    {
+      winS= <LostScreen />
+    }
   }
 
 
@@ -265,6 +294,7 @@ const App = () => {
         {display}
       </main>
       <ErrorMsg msg={errorMsg}/>
+      {winS}
     </div>
   );
 }
