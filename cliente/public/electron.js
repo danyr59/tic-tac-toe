@@ -45,49 +45,18 @@ function sendData(data) {
 
 
 function handleData(data) {
-  console.log("handleData")
-  const n_data = data;
-  console.log('Datos recibidos:', n_data);
+  
 
-  switch (n_data.action) {
-    case ACTION.AUTHENTICATION:
-      handleAuthentication();
-      break;
-    case ACTION.NEW_ROOM:
-      handleNewRoom(n_data);
-      break;
-    case ACTION.LIST_ROOM:
-      handleListRoom(n_data);
-      break;
-    case ACTION.CHOOSE_ROOM: 
-      sendData(n_data);
-      break;
-    case ACTION.UPDATE:
-      
-      break;
-    default:
-      console.log("Acción no reconocida.");
+  if(data.action == ACTION.AUTHENTICATION)
+  {
+    console.log("autenticado");
   }
-}
-
-
-function handleAuthentication() {
-  console.log("autenticado");
- 
-}
-
-function handleNewRoom(data) {
-  
-  sendData(data);
+  else
+  {
+    sendData(data);
+  }
   
 }
-
-function handleListRoom(data) {
- 
-  sendData(data);
-  
-}
-
 
 let mainWindow;
 
@@ -135,18 +104,17 @@ client.on('connect', () => {
 
 
   ipcMain.on('accion-en-electron', (event, arg) => {
-    console.log("event:", event);
-    console.log("arg:", arg); // arg es el mensaje enviado desde React
     
-    console.log("antes de handle")
+    console.log("arg:", arg); // arg es el mensaje enviado desde React
+
+   
     handleData(arg)
 
     //aqui manejo la data del servidor y la mando al electron app
     client.on('data', (data) => {
       const dataString = data.toString();
       console.log(dataString);
-      //console.log(JSON.parse(data))
-      //data = JSON.parse(data);
+      
       try {
         mainWindow.webContents.send('mensaje-desde-electron', JSON.parse(data));
       } catch (error) {

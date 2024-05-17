@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { ACTION,STATUS, STATUS_RESTART } from './utils';
+
 const Cell = ({ value, onPress }) => (
   <div
     style={{
@@ -28,15 +30,26 @@ const Board = ({ board, onCellPress }) => (
   </div>
 );
 
-const Game = ({ currentPlayer, winner, onMove, onRestart, onExit, board, nameRoom }) => {
+const Game = ({ turn, currentPlayer, winner, board, nameRoom }) => {
   const handleCellPress = (i, j) => {
-    // Lógica para manejar el movimiento del jugador
-    const newBoard = [...board];
-    if (!newBoard[i][j]) {
-      newBoard[i][j] = currentPlayer === 'Jugador 1' ? 'X' : 'O';
-      onMove(newBoard);
+    if (turn) {
+      const data = { action: ACTION.MOVE, move : (i * 3 + j) };
+      window.electronAPI.send(data); 
+    } else {
+      console.log("No es tu turno");
     }
   };
+
+  const onRestart = () =>
+  {
+    const data = { action: ACTION.RESTART};
+    window.electronAPI.send(data); 
+  }
+  const onExit = () =>
+  {
+    const data = { action: ACTION.CLOSE};
+    window.electronAPI.send(data); 
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -52,39 +65,18 @@ const Game = ({ currentPlayer, winner, onMove, onRestart, onExit, board, nameRoo
   );
 };
 
-const Tablero = ({board, room, exit}) => {
+const Tablero = ({ board, room, turn, exit }) => {
   console.log(room)
   const [currentPlayer, setCurrentPlayer] = useState('Jugador 1');
   const [winner, setWinner] = useState(null);
-
-
-  const handleMove = (newBoard) => {
-    // Lógica para verificar si hay un ganador y actualizar el estado de 'winner'
-    setBoard(newBoard);
-    setCurrentPlayer(currentPlayer === 'Jugador 1' ? 'Jugador 2' : 'Jugador 1');
-  };
-
-  const handleRestart = () => {
-    setCurrentPlayer('Jugador 1');
-    setWinner(null);
-  };
-
-  const handleExit = () => {
-    setCurrentPlayer('Jugador 1');
-    setWinner(null);
-    setBoard([]);
-    exit();
-  };
 
   return (
     <Game
       nameRoom={room}
       currentPlayer={currentPlayer}
       winner={winner}
-      onMove={handleMove}
-      onRestart={handleRestart}
-      onExit={handleExit}
       board={board}
+      turn={turn}
     />
   );
 };

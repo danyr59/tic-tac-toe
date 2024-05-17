@@ -163,6 +163,7 @@ void Server::manage_data(json j, const int &fd)
         case ACTION::LIST_ROOM:
         {
             // Aquí va el código para manejar la acción LIST_ROOM
+            clear_rooms();
             std::vector<std::string> list = get_room_list();
             json j = {{"action", static_cast<int>(ACTION::LIST_ROOM)}};
             j["list"] = {};
@@ -319,8 +320,10 @@ Server::~Server()
 
 void Server::close_room(const int &client_x, const int &client_o, std::string &key_room)
 {
-    add_client(client_o, false);
-    add_client(client_x, false);
+    if(client_o != -1)
+        add_client(client_o, false);
+    if(client_x != -1)
+        add_client(client_x, false);
 
     if(closed_rooms.size() == 0)
     {
@@ -343,4 +346,5 @@ void Server::clear_rooms()
     for(const std::string &key : closed_rooms)
         list_room.erase(key);
 
+    closed_rooms.clear();
 }

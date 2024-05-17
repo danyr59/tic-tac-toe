@@ -122,15 +122,27 @@ void Room::set_listen()
                 json data = read_data(fds[i].fd, value_read);
                 if (value_read > 0)
                 {
-
                     manage_data(data, fds[i].fd);
+                }else
+                {
+                    if(fds[i].fd == client_o)
+                    {
+                        close(client_o);
+                        client_o = -1;
+                    }else
+                    {
+                        close(client_x);
+                        client_x = -1;
+                    }
+                    listening = false;
+                    break;
                 }
                 
             }
         }
     }
 
-    close();
+    _close();
 
     
 }
@@ -268,7 +280,7 @@ void Room::restart(const int &fd)
 
 }
 
-void Room::close()
+void Room::_close()
 {
     close_room(client_o, client_x, key_room);
 }

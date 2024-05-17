@@ -5,37 +5,7 @@ import { useEffect, useState } from 'react';
 //import { TouchableOpacity as RNDomTouchableOpacity } from 'react-native-web';
 import Tablero from './game';
 
-
-
-const ACTION = {
-  AUTHENTICATION: 0,
-  NEW_ROOM: 1,
-  CHOOSE_ROOM: 2,
-  SELECT_MOVEMENT: 3,
-  OUT_ROOM: 4,
-  OUT_GAME: 5,
-  LIST_ROOM: 6,
-  START_GAME: 7,
-  MOVE: 10,
-  CLOSE: 11,
-  RESTART: 12,
-  UPDATE: 13,
-  WIN: 14
-};
-
-const STATUS = {
-  OK: 0,
-  ITS_NOT_TURN: 1,
-  BOX_OCCUPED: 2,
-  WIN: 3,
-  ALL_BOX_OCCUPED: 4
-};
-
-const STATUS_RESTART = {
-  WAITING_ANOTHER_USER: 0,
-  WAITING_RESPONSE: 1
-
-}
+import { ACTION,STATUS, STATUS_RESTART } from './utils';
 
 
 const Room = ({ room, onJoin, setWaiting }) => {
@@ -127,8 +97,10 @@ const App = () => {
   const [currentRoom, setCurrentRoom] = useState(null); // Sala actual
   const [waiting, setWaiting] = useState(false);
   const [dataActions, setDataActions] = useState(null);
-  const [id, setId] = useState(null);
   const [rol, setRol] = useState(null);
+  const [id, setId] = useState(null);
+  
+  const [turn, setTurn] = useState(null);
   const [board, setBoard] = useState([
     ['', '', ''],
     ['', '', ''],
@@ -156,7 +128,7 @@ const App = () => {
     setBoard(newBoard);
   }
 
-
+  
   useEffect(() => {
 
     window.electronAPI.listen((event, data) => {
@@ -183,23 +155,52 @@ const App = () => {
 
       }
       if (data.action == ACTION.START_GAME) {
-        
+        console.log(data);
         setRol(data.rol);
+        setTurn(data.rol == data.turn);
         setWaiting(false);
         parseTable(data.table);     
-        
 
       }
+      if (data.action == ACTION.UPDATE) {
+        
+        console.log("rol :",rol, "turn:", rol == data.turn);
+        setTurn(rol == data.turn);
+        parseTable(data.table);     
+        console.log("status :", data.status);
 
-      
-      //data = JSON.parse(data);
-      // '¡Hola desde Electron!'
-      // Haz algo con los datos recibidos
-      console.log(data.list);
+      }
+      if (data.action == ACTION.WIN) {
+        if(rol == data.turn)
+        {
+          console.log("GANASTEE");
+        }
+        //setTurn(rol == data.turn);
+        parseTable(data.table);     
+
+      }
+      if (data.action == ACTION.RESTART) {
+        if(data.status == 0)
+        {
+          console.log("Esparando respuesta de otro jugador");
+        }else
+        {
+          console.log("El otro jugador marco");
+        }
+        //setTurn(rol == data.turn);
+        //parseTable(data.table);     
+      }
+      if (data.action == ACTION.OUT_ROOM) {
+        setCurrentRoom(null);
+        //setTurn(rol == data.turn);
+        //parseTable(data.table);     
+      }
+
+  
     });
 
 
-  }, []);
+  }, [rol]);
 
   const startServer = () => {
     const data = { action: ACTION.AUTHENTICATION };
@@ -233,7 +234,7 @@ const App = () => {
   return currentRoom ? (
     !waiting ?
       (
-        <Tablero board={board}room={currentRoom} exit={handleExit}  />
+        <Tablero board={board}room={currentRoom} exit={handleExit}  turn={turn}  />
       ) : (
         <h3>Esperando Conexion</h3>
       )
