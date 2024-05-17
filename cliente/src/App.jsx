@@ -1,4 +1,4 @@
-//import logo from './logo.svg';
+import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 //import { Platform, TouchableOpacity as RNGHTouchableOpacity, View, Text, Button, FlatList, } from 'react-native';
@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import Tablero from './game';
 
 import { ACTION,STATUS, STATUS_RESTART } from './utils';
+import ErrorMsg from './ErrorMsg';
+import WaitingPage from './WaitingPage';
 
 
 const Room = ({ room, onJoin, setWaiting }) => {
@@ -23,7 +25,6 @@ const Room = ({ room, onJoin, setWaiting }) => {
   );
 }
 
-
 const CreateRoom = ({ onCreate, setView }) => {
   const [nameRoom, setNameRoom] = useState(null);
   const handleNameChange = (e) => {
@@ -37,11 +38,13 @@ const CreateRoom = ({ onCreate, setView }) => {
   };
   return (
     <>
-      <p>Formulario para crear sala</p>
-      <input type="text" value={nameRoom} onChange={handleNameChange} />
       <div>
-        <button onClick={crearRoom}>Crear Sala</button>
-        <button onClick={() => setView(null)}>Volver</button>
+        <h2>Crear sala</h2>
+        <input type="text" placeholder='Nombre' value={nameRoom} onChange={handleNameChange} />
+      </div>
+      <div>
+        <button className='btn' onClick={crearRoom}>Crear Sala</button>
+        <button className='btn' onClick={() => setView(null)}>Volver</button>
       </div>
     </>
   );
@@ -62,8 +65,8 @@ const RoomPortal = ({ rooms, onJoin, onCreate, dataActions, setWaiting }) => {
 
 
   return (
-    <div style={{ alignItems: 'center' }}>
-      <p style={{ fontSize: 24, marginBottom: 10 }}>Portal</p>
+    <div className='menu'>
+
       {view === 'join' && (
         <>
           <ul>
@@ -73,7 +76,7 @@ const RoomPortal = ({ rooms, onJoin, onCreate, dataActions, setWaiting }) => {
               </li>
             ))}
           </ul>
-          <button onClick={() => setView(null)}>Volver</button>
+          <button className='btn' onClick={() => setView(null)}>Volver</button>
         </>
       )}
       {view === 'create' && (
@@ -83,8 +86,12 @@ const RoomPortal = ({ rooms, onJoin, onCreate, dataActions, setWaiting }) => {
       )}
       {!view && (
         <>
-          <button onClick={handleJoinPress}>Unirse a Sala</button>
-          <button onClick={handleCreatePress}>Crear Sala</button>
+          <div>
+            <h2>Menu</h2>
+            <button className='btn' onClick={handleJoinPress}>Unirse a Sala</button>
+            <button className='btn' onClick={handleCreatePress}>Crear Sala</button>
+          </div>
+          <button className='btn'>Cerrar</button>
         </>
       )}
     </div>
@@ -99,6 +106,7 @@ const App = () => {
   const [dataActions, setDataActions] = useState(null);
   const [rol, setRol] = useState(null);
   const [id, setId] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
   
   const [turn, setTurn] = useState(null);
   const [board, setBoard] = useState([
@@ -139,9 +147,10 @@ const App = () => {
 
       if (data.action == ACTION.NEW_ROOM) {
         if (data.status == 1) {
-          setWaiting(false);
+          setWaiting(true);
         } else {
-          //mostrar mensaje que no se pudo crear sala
+          setErrorMsg("No se pudo crear sala");
+          //mostrar mensaje que 
         }
 
       }
@@ -151,6 +160,9 @@ const App = () => {
           console.log(data.list);
           //console.log(data.list)
           setRooms(data.list);
+        }else
+        {
+          setRooms([]);
         }
 
       }
@@ -187,13 +199,11 @@ const App = () => {
         {
           console.log("El otro jugador marco");
         }
-        //setTurn(rol == data.turn);
-        //parseTable(data.table);     
+
       }
       if (data.action == ACTION.OUT_ROOM) {
         setCurrentRoom(null);
-        //setTurn(rol == data.turn);
-        //parseTable(data.table);     
+  
       }
 
   
@@ -210,7 +220,7 @@ const App = () => {
   const handleJoin = (room) => {
     //  agregar la lógica para unirse a una sala
     setCurrentRoom(room);
-    setWaiting(true)
+    //setWaiting(true)
   };
   const handleCreate = (room) => {
     setCurrentRoom(room);
@@ -231,15 +241,31 @@ const App = () => {
     setCurrentRoom(null);
   };
 
-  return currentRoom ? (
-    !waiting ?
-      (
-        <Tablero board={board}room={currentRoom} exit={handleExit}  turn={turn}  />
-      ) : (
-        <h3>Esperando Conexion</h3>
-      )
-  ) : (
-    <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} dataActions={dataActions} setWaiting={setWaiting} />
+  let display;
+  
+  if(currentRoom && !waiting)
+  display = <Tablero board={board}room={currentRoom} exit={handleExit}  turn={turn}  />
+  else if(currentRoom)
+  {
+    display = <WaitingPage />;
+  }else
+  {
+    
+    display = <RoomPortal rooms={rooms} onJoin={handleJoin} onCreate={handleCreate} dataActions={dataActions} setWaiting={setWaiting} />;
+  }
+
+
+  return (
+    <div className='app'>
+      <header>
+          <img src={logo} alt="" className="App-logo" />
+        <h1>La vieja</h1>
+      </header>
+      <main>
+        {display}
+      </main>
+      <ErrorMsg msg={errorMsg}/>
+    </div>
   );
 }
 

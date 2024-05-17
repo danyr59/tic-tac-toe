@@ -4,14 +4,7 @@ import { ACTION,STATUS, STATUS_RESTART } from './utils';
 
 const Cell = ({ value, onPress }) => (
   <div
-    style={{
-      width: 50,
-      height: 50,
-      border: '1px solid black',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}
+    className={`cell ${value}`}
     onClick={onPress}
   >
     <p style={{ fontSize: 24 }}>{value}</p>
@@ -19,7 +12,7 @@ const Cell = ({ value, onPress }) => (
 );
 
 const Board = ({ board, onCellPress }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  <div className='tablero'>
     {board.map((row, i) => (
       <div key={i} style={{ display: 'flex', flexDirection: 'row' }}>
         {row.map((cell, j) => (
@@ -53,13 +46,16 @@ const Game = ({ turn, currentPlayer, winner, board, nameRoom }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <p>Name Room: {nameRoom}</p>
-      <p style={{ fontSize: 24, marginBottom: 10 }}>Turno de {currentPlayer}</p>
+      <div className='nombre-sala'>
+        <h3>{nameRoom}</h3>
+        <p>Sala</p>
+      </div>
+        {turn ? <p className='turno'>¡Es tu turno!</p> : ""}
       <Board board={board} onCellPress={handleCellPress} />
       {winner && <p style={{ fontSize: 24, marginVertical: 20 }}>{winner} ha ganado!</p>}
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '80%', marginTop: 20 }}>
-        <button onClick={onRestart}>Reiniciar</button>
-        <button onClick={onExit}>Salir</button>
+      <div className='room-buttons'>
+        <button className='btn' onClick={onRestart}>Reiniciar</button>
+        <button className='btn' onClick={onExit}>Salir</button>
       </div>
     </div>
   );

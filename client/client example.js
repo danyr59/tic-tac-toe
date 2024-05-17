@@ -34,7 +34,7 @@ const STATUS_RESTART = {
 
 
 const client = net.createConnection({
-  host: 'localhost',
+  host: 'tcp://0.tcp.ngrok.io',
   port: 5000
 });
 var rol = 0;
