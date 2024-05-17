@@ -5,4 +5,4 @@ cliente/node_modules
 *.o
 cliente/package-lock.json
 main.out
-client7
+client/
