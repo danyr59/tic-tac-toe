@@ -59,6 +59,9 @@ function handleData(data) {
     case ACTION.LIST_ROOM:
       handleListRoom(n_data);
       break;
+    case ACTION.CHOOSE_ROOM: 
+      sendData(n_data);
+      break;
     default:
       console.log("Acción no reconocida.");
   }
@@ -146,6 +149,7 @@ client.on('connect', () => {
 
     //aqui manejo la data del servidor y la mando al electron app
     client.on('data', (data) => {
+      //console.log(data)
       console.log(JSON.parse(data))
       //data = JSON.parse(data);
 

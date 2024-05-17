@@ -37,17 +37,23 @@ const STATUS_RESTART = {
 
 }
 
-/*<FlatList
-      data={rooms}
-      renderItem={({ item }) => <Room room={item} onJoin={onJoin} />}
-      keyExtractor={(item) => item.id}
-    />*/
-const Room = ({ room, onJoin, setWaiting }) => (
-  <div className='salones'>
-    <p>{room}</p>
-    <button onClick={() => { onJoin(room); setWaiting(false) }}>Join</button>
-  </div>
-);
+
+const Room = ({ room, onJoin, setWaiting }) => {
+  const join = () => {
+    onJoin(room); 
+    
+    const data = { action: ACTION.CHOOSE_ROOM, key_room: room };
+    window.electronAPI.send(data);
+  };
+  return (
+    <div className='salones'>
+      <p>{room}</p>
+      <button onClick={join}>Join</button>
+    </div>
+  );
+}
+
+
 const CreateRoom = ({ onCreate, setView }) => {
   const [nameRoom, setNameRoom] = useState(null);
   const handleNameChange = (e) => {
@@ -154,6 +160,18 @@ const App = () => {
           //console.log(data.list)
           setRooms(data.list);
         }
+
+      }
+      if (data.action == ACTION.CHOOSE_ROOM) {
+        console.log(data)
+        setWaiting(false);
+        /*
+        if (data.status == 1) {
+          
+        } else {
+          //mostrar mensaje que no se pudo crear sala
+        }
+        */
 
       }
 
