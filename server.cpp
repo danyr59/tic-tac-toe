@@ -189,7 +189,8 @@ std::vector<std::string> Server::get_room_list()
     std::vector<std::string> list;
     for (const auto &r : list_room)
     {
-        list.push_back(r.first);
+        if(r.second->available)
+            list.push_back(r.first);
     }
 
     return list;

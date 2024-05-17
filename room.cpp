@@ -6,6 +6,7 @@ Room::Room(const int &cl_o, const std::string &_key_room, closeRoomServer f) : c
     memset(table, -1, sizeof(table));
     available = true;
     _restart = false;
+    hilo = nullptr;
 }
 
 void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
