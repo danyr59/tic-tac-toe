@@ -27,13 +27,18 @@ void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
     fds[1].events = POLLIN;
 
     json j = {{"action", ACTION::START_GAME}};
+
+    j["table"] = {{table[0][0], table[0][1], table[0][2]},
+                    {table[1][0], table[1][1], table[1][2]}, 
+                    {table[2][0], table[2][1], table[2][2]}};
+    turn = false;
+    j["turn"] = turn;
     j["rol"] = 0;
     send_message(client_o, j);
     j["rol"] = 1;
     send_message(client_x, j);
-    turn = false;
     listening = true;
-    send_update();
+    //send_update();
     if (hilo == nullptr)
         hilo = new std::thread(&Room::set_listen, this);
 }

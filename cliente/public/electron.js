@@ -149,11 +149,15 @@ client.on('connect', () => {
 
     //aqui manejo la data del servidor y la mando al electron app
     client.on('data', (data) => {
-      //console.log(data)
-      console.log(JSON.parse(data))
+      const dataString = data.toString();
+      console.log(dataString);
+      //console.log(JSON.parse(data))
       //data = JSON.parse(data);
-
-      mainWindow.webContents.send('mensaje-desde-electron', JSON.parse(data));
+      try {
+        mainWindow.webContents.send('mensaje-desde-electron', JSON.parse(data));
+      } catch (error) {
+        console.log(error);
+      }
     });
   });
 
