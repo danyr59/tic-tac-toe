@@ -1,0 +1,234 @@
+.App {
+  text-align: center;
+}
+.app
+{
+  background-color: #282c34;
+  min-height: 100vmin;
+}
+
+.App-logo {
+  height: 14vmin;
+  pointer-events: none;
+
+}
+
+h2
+{
+  color: white;
+}
+
+.menu
+{
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  margin: 1rem auto;
+  background: #3d4657;
+  padding: .8rem;
+  text-align: center;
+  min-height: 350px;
+  border-radius: 9px;
+  justify-content: space-between;
+}
+
+.menu > div
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.btn
+{
+  color: white;
+  font-weight: 600;
+  font-size: 17px;
+  padding: .8rem 1rem;
+  border-radius: 3px;
+  border: none;
+  outline: none;
+  margin: .4rem 0;
+  cursor: pointer;
+}
+
+input
+{
+  font-size: 17px;
+  padding: .8rem 1rem;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+}
+
+input:focus
+{
+  box-shadow: 0px 0px 2px 2px #25accb;
+}
+
+.menu button
+{
+  background-color: #16b1bf;
+  transition: .2s;
+}
+
+.menu ul
+{
+  padding: 0;
+  list-style: none;
+
+}
+
+.menu li div
+{
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  background: #343b4a;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  justify-content: space-between;
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  align-content: center;
+  align-items: center;
+}
+.tablero
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 5px;
+  background: #3d4657;
+}
+
+.tablero .cell
+{
+  width: 50px;
+  height: 50px;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tablero .cell.O
+{
+  color: #3fc3eb;
+}
+.tablero .cell.X
+{
+  color: #cf4a4a;
+}
+.menu li p
+{
+  margin: 0.5rem 0;
+}
+
+.menu li button
+{
+  border-radius: 3px;
+  border: none;
+  outline: none;
+  font-weight: 900;
+  color: white;
+  padding: .2rem .5rem;
+}
+
+.menu button:hover
+{
+  background-color: #008d9a;
+}
+
+.error-msg
+{
+  max-width: 400px;
+  margin: 1rem auto;
+  background-color: #ab4747;
+  color: #ffffff;
+  padding: .8rem 1.5rem;
+  border-radius: 5px;
+  display: flex;
+  gap: 1rem;
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+
+header
+{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+h1
+{
+  margin: 0.5rem 0;
+}
+
+.nombre-sala
+{
+  width: 100%;
+  text-align: center;
+}
+
+.nombre-sala h3
+{
+  color: white;
+  font-size: 23px;
+  margin: 0;
+  margin-top: 1rem;
+}
+
+.nombre-sala p
+{
+  margin-top: 0;
+  color: gray;
+  font-size: 14px;
+}
+
+.turno
+{
+  background-color: #3dafc3;
+  color: white;
+  padding: 0.5rem 2rem;
+  border-radius: 3px;
+  font-size: 21px;
+}
+
+.room-buttons
+{
+  display: flex;
+  gap: .8rem;
+  margin-top: 1rem;
+}
+
+.room-buttons .btn
+{
+  background-color: #16b1bf;
+  transition: .2s;
+}
+
+.App-link {
+  color: #61dafb;
+  
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

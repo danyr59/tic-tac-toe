@@ -6,6 +6,7 @@ Room::Room(const int &cl_o, const std::string &_key_room, closeRoomServer f) : c
     memset(table, -1, sizeof(table));
     available = true;
     _restart = false;
+    hilo = nullptr;
 }
 
 void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
@@ -27,13 +28,18 @@ void Room::Init(const int &cl_x, struct pollfd *_fds, int &fds_tam)
     fds[1].events = POLLIN;
 
     json j = {{"action", ACTION::START_GAME}};
+
+    j["table"] = {{table[0][0], table[0][1], table[0][2]},
+                    {table[1][0], table[1][1], table[1][2]}, 
+                    {table[2][0], table[2][1], table[2][2]}};
+    turn = false;
+    j["turn"] = turn;
     j["rol"] = 0;
     send_message(client_o, j);
     j["rol"] = 1;
     send_message(client_x, j);
-    turn = false;
     listening = true;
-    send_update();
+    //send_update();
     if (hilo == nullptr)
         hilo = new std::thread(&Room::set_listen, this);
 }
@@ -117,15 +123,27 @@ void Room::set_listen()
                 json data = read_data(fds[i].fd, value_read);
                 if (value_read > 0)
                 {
-
                     manage_data(data, fds[i].fd);
+                }else
+                {
+                    if(fds[i].fd == client_o)
+                    {
+                        close(client_o);
+                        client_o = -1;
+                    }else
+                    {
+                        close(client_x);
+                        client_x = -1;
+                    }
+                    listening = false;
+                    break;
                 }
                 
             }
         }
     }
 
-    close();
+    _close();
 
     
 }
@@ -263,7 +281,7 @@ void Room::restart(const int &fd)
 
 }
 
-void Room::close()
+void Room::_close()
 {
     close_room(client_o, client_x, key_room);
 }

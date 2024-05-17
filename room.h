@@ -60,7 +60,7 @@ public:
     //return false si hay posiciones disponibles por ocupar
     bool check_full();
 
-    void close();
+    void _close();
     
 };
 

@@ -1,0 +1,36 @@
+@keyframes scaleDown {
+    0% {
+    transform: scale(1.5);
+    opacity: 0;
+    }
+    50% {
+    transform: scale(0.8);
+    opacity: 1;
+    }
+    100% {
+    transform: scale(1);
+    opacity: 1;
+    }
+    }
+    
+    @keyframes glowing {
+    0% {
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff3333, 0 0 40px #ff3333, 0 0 50px #ff3333, 0 0 60px #ff3333, 0 0 70px #ff3333;
+    }
+    50% {
+    text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff3333, 0 0 20px #ff3333, 0 0 25px #ff3333, 0 0 30px #ff3333, 0 0 35px #ff3333;
+    }
+    100% {
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff3333, 0 0 40px #ff3333, 0 0 50px #ff3333, 0 0 60px #ff3333, 0 0 70px #ff3333;
+    }
+    }
+    
+    .defeat-message {
+        animation: scaleDown 2s ease-in-out forwards, glowing 1s linear infinite;
+        font-size: 3em;
+        color: #FF0000; /* Color rojo para el mensaje de derrota */
+        opacity: 0;
+        text-align: center;
+        padding: 20px;
+        margin-top: 5%;
+    }
